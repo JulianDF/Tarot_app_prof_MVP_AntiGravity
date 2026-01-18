@@ -204,8 +204,71 @@ export interface InterpretResponse {
 // Layout Grid Types (for rendering)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type LayoutCell = 
+export type LayoutCell =
   | { type: 'empty' }
   | { type: 'position'; positionIndex: number };
 
 export type LayoutGrid = LayoutCell[][];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat Types (MVP AI-first conversation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ChatMessage {
+  id: string;
+  created_at: string;
+  role: MessageRole;
+  content: string;
+  reading_id?: string;
+  metadata?: {
+    model_used?: 'mini' | 'thinking';
+    tool_call?: string;
+    tokens_used?: number;
+  };
+}
+
+export interface SpreadWithCards {
+  reading_id: string;
+  question: string;
+  spread: SpreadSnapshot;
+  cards: Array<{
+    position_index: number;
+    card: Card;
+    reversed: boolean;
+  }>;
+}
+
+export interface SpreadLedgerEntry {
+  reading_id: string;
+  question_summary: string;
+  spread_name: string;
+  cards_summary: string;
+  created_at: string;
+}
+
+export interface ChatRequest {
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>;
+  activeSpread?: SpreadWithCards;
+  spreadLedger?: SpreadLedgerEntry[];
+}
+
+export interface ToolCall {
+  id: string;
+  name: string;
+  arguments: Record<string, unknown>;
+}
+
+export interface ToolResult {
+  tool_call_id: string;
+  name: string;
+  content: string;
+}
+
+// Stream event types for SSE
+export type ChatStreamEvent =
+  | { type: 'text'; content: string }
+  | { type: 'tool_call'; id: string; name: string; arguments: Record<string, unknown> }
+  | { type: 'tool_result'; name: string; result: unknown }
+  | { type: 'spread_laid'; reading: Reading }
+  | { type: 'error'; message: string }
+  | { type: 'done' };

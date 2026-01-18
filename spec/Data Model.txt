@@ -1,7 +1,10 @@
 # Tarot App — Data Model (MVP + V1)
 
-This data model matches the feature roadmap in `Feature list.txt`. :contentReference[oaicite:0]{index=0}  
-MVP is **session-only** (no accounts, no saving). V1 adds **accounts, persistence, credits/payments, premium gating, and chat with context management**.
+This data model matches the feature roadmap in `Feature list.txt`.
+
+**MVP** is an AI-first chat experience with mobile-optimized spread display. It is session-only (no accounts, no saving) but includes full chat functionality with dual-model architecture.
+
+**V1** adds accounts, persistence, credits/payments, premium gating, search, and history analysis.
 
 ---
 
@@ -120,6 +123,52 @@ Use UUIDv4 for IDs unless you have a strong reason not to.
 
 > In MVP, “session” means the runtime session in the app; no persistence required.
 > Custom spreads remain empty in MVP (deferred to V1).
+
+### 1.7 MVP Chat (AI-first conversation)
+
+**ChatMessage**
+- `id: string` (UUID)
+- `created_at: string` (ISO)
+- `role: MessageRole` (`user` | `assistant` | `system`)
+- `content: string`
+- `reading_id?: string` (optional: message relates to specific spread)
+- `metadata?: {
+    model_used?: 'mini' | 'thinking',
+    tool_call?: string,
+    tokens_used?: int
+  }`
+
+> `system` role is used for automated messages like "A new spread was laid for your question..."
+
+**ConversationContext**
+- `summary_text: string` (compressed history beyond last 20 messages)
+- `summarized_through_message_id?: string`
+- `spread_ledger: SpreadLedgerEntry[]` (summary of previous spreads)
+- `active_reading_id?: string`
+
+**SpreadLedgerEntry**
+- `reading_id: string`
+- `question_summary: string` (truncated)
+- `spread_name: string`
+- `cards_summary: string` (e.g., "The Tower, 3 of Cups, ...")
+- `created_at: string`
+
+### 1.8 MVP Interpretation Request (dual-model tool call)
+
+**InterpretationRequest**
+- `id: string`
+- `reading_id: string`
+- `focus_area?: string` (optional: specific card/aspect to emphasize)
+- `requested_at: string` (ISO)
+
+**InterpretationResponse**
+- `request_id: string`
+- `output_text: string`
+- `model_used: string` (e.g., `gpt-5.2-thinking`)
+- `completed_at: string` (ISO)
+- `usage?: { input_tokens?: int, output_tokens?: int }`
+
+> See `ai-architecture.md` for the full dual-model flow.
 
 ---
 
