@@ -1,0 +1,386 @@
+# Tarot App — Data Model (MVP + V1)
+
+This data model matches the feature roadmap in `Feature list.txt`. :contentReference[oaicite:0]{index=0}  
+MVP is **session-only** (no accounts, no saving). V1 adds **accounts, persistence, credits/payments, premium gating, and chat with context management**.
+
+---
+
+## 0) Shared concepts & enums
+
+### Enums
+- `RngMethod`: `qrng | random_org | slot_machine | manual`
+- `AiDepth`: `short | medium | deep`
+- `SpreadType`: `system | custom`
+- `MessageRole`: `user | assistant | system`
+
+### Identifiers
+Use UUIDv4 for IDs unless you have a strong reason not to.
+
+---
+
+## 1) MVP Data Model (in-memory, session-scoped)
+
+### 1.1 Card (static)
+**Card**
+- `id: int` (0–77 canonical)
+- `name: string`
+- `meaning: string` (upright)
+- `meaning_reversed: string`
+- `keywords: string[]` (upright)
+- `keywords_reversed: string[]`
+- `image?: string` (URL)
+
+> Storage: static JSON in repo, loaded at runtime.
+
+### 1.2 Spread templates (system + custom)
+**Spread**
+- `id: string` (for MVP system spreads, this equals `slug`)
+- `type: SpreadType` (`system` for built-ins, `custom` for user-created)
+- `slug: string` (unique within `type`; e.g. `diamond_spread`, `energy_mix`)
+- `name: string`
+- `purpose: string`
+- `n_cards: int`
+- `positions: SpreadPosition[]` (length = `n_cards`)
+- `layout_descriptor: string`  
+  Example for Diamond: `X5X\n213\nX4X`
+
+**SpreadPosition**
+- `index: int` (0..n_cards-1)
+- `meaning: string` (meaning of the position)
+
+### Layout descriptor parsing (MVP + V1)
+- Rows are separated by `\n`.
+- Tokens are split by comma or whitespace; empty tokens are ignored.
+- If a row has no commas or spaces, parse per character (backward compatible).
+- Token `X` = empty slot.
+- Integer tokens are **1-based position indexes** (e.g., `1` maps to `positions[0]`).
+
+> Custom spreads are deferred to V1; in MVP only system spreads are exposed.
+
+### 1.3 Reading (session-only)
+**Reading**
+- `id: string` (for MVP system spreads, this equals `slug`)
+- `created_at: string` (ISO)
+- `spread_id: string`
+- `spread_snapshot: SpreadSnapshot` *(important: store a snapshot so edits to a spread don’t mutate past readings)*
+- `question: string`
+- `allow_duplicates: boolean` (default false)
+- `allow_reversals: boolean` (default true; system draws only)
+- `cards: ReadingCard[]` (length = n_cards; unique unless allow_duplicates)
+- `notes?: { general?: string, by_position?: Record<int, string> }` *(deferred to V1 UI)*
+- `rng: RngProvenance`
+- `ai?: { one_shot?: AiInterpretationResult }`
+
+**SpreadSnapshot**
+- `name: string`
+- `purpose: string`
+- `n_cards: int`
+- `positions: SpreadPosition[]`
+- `layout_descriptor: string`
+- `source: { type: SpreadType, spread_id: string, slug?: string }` (in MVP, `spread_id` equals `slug`)
+
+**ReadingCard**
+- `position_index: int`
+- `card_id: int` (0–77)
+- `reversed: boolean`
+
+### 1.4 RNG provenance (cascade)
+**RngProvenance**
+- `method_used: RngMethod`
+- `attempts: RngAttempt[]` (ordered list; includes failures)
+- `final_seed_or_receipt?: string` (optional: provider receipt / hash)
+
+**RngAttempt**
+- `method: RngMethod` (`qrng` or `random_org` or `slot_machine`)
+- `provider?: string` (e.g. `anu_qrng`, `random_org`)
+- `started_at: string` (ISO)
+- `ended_at: string` (ISO)
+- `success: boolean`
+- `error?: { code?: string, message: string }`
+- `meta?: Record<string, any>` (e.g. request_id, response_size, latency_ms)
+
+### 1.5 AI one-shot interpretation (MVP)
+**AiInterpretationResult**
+- `id: string` (for MVP system spreads, this equals `slug`)
+- `created_at: string` (ISO)
+- `depth: AiDepth`
+- `prompt_version: string` (e.g. `mvp_v1`)
+- `output_text: string`
+- `usage?: { input_tokens?: int, output_tokens?: int }` (optional)
+- `cost_hint?: { credits_estimated?: number }` (optional)
+
+### 1.6 MVP Session state (multiple readings per session)
+**SessionState (MVP)**
+- `session_id: string` (UUID)
+- `created_at: string`
+- `updated_at: string`
+- `spreads: { system: Spread[], custom: Spread[] }`
+- `readings: Reading[]` (multiple readings in the session)
+- `active_reading_id?: string`
+
+> In MVP, “session” means the runtime session in the app; no persistence required.
+> Custom spreads remain empty in MVP (deferred to V1).
+
+---
+
+## 2) V1 Data Model (persistent + accounts + credits + context-managed chat)
+
+V1 introduces:
+- users + authentication
+- saving sessions (each session contains multiple readings)
+- AI premium gating + credits/payments
+- chat thread per session with context management:
+  - last 20 interactions verbatim
+  - summary of everything before those 20
+  - most recent spread + question
+  - short summary (“ledger”) of previous spreads in the session
+  - ability to pull past sessions/readings into context when appropriate
+
+Below is a **relational schema** (Postgres). Supabase? 
+
+---
+
+## 2.1 Core tables
+
+### users
+- `id uuid pk`
+- `email text unique not null`
+- `password_hash text not null` *(or external auth provider id)*
+- `created_at timestamptz not null`
+- `last_login_at timestamptz`
+- `settings jsonb` *(defaults: reversals, UI prefs, etc.)*
+
+### tarot_spreads
+Stores **system** and **custom** spreads.
+- `id uuid pk`
+- `owner_user_id uuid null`  
+  - null = system spread  
+  - set = custom spread owned by user
+- `slug text not null`
+- `name text not null`
+- `purpose text not null`
+- `n_cards int not null`
+- `layout_descriptor text not null`
+- `created_at timestamptz not null`
+- `updated_at timestamptz not null`
+- Unique constraint suggestion:
+  - `(owner_user_id, slug)` unique
+
+### tarot_spread_positions
+- `id uuid pk`
+- `spread_id uuid fk -> tarot_spreads(id) on delete cascade`
+- `position_index int not null`
+- `meaning text not null`
+- Unique constraint: `(spread_id, position_index)` unique
+
+---
+
+## 2.2 Sessions & readings (persisted)
+
+### tarot_sessions
+A “session” groups multiple readings and one chat thread.
+- `id uuid pk`
+- `user_id uuid fk -> users(id) on delete cascade`
+- `title text` *(optional: auto from first question)*
+- `created_at timestamptz not null`
+- `updated_at timestamptz not null`
+- `active_reading_id uuid null` *(fk set after readings exist)*
+
+### tarot_readings
+- `id uuid pk`
+- `session_id uuid fk -> tarot_sessions(id) on delete cascade`
+- `created_at timestamptz not null`
+- `question text not null`
+- `allow_duplicates boolean not null default false`
+- `spread_source_spread_id uuid null fk -> tarot_spreads(id)` *(reference)*
+- `spread_snapshot jsonb not null` *(freeze positions/layout at time of reading; see MVP SpreadSnapshot)*
+- `rng_provenance jsonb not null` *(store RngProvenance)*
+- `notes_general text null`
+
+> Why snapshot + reference? Reference lets you know which template it came from; snapshot preserves historical truth.
+
+### tarot_reading_cards
+- `id uuid pk`
+- `reading_id uuid fk -> tarot_readings(id) on delete cascade`
+- `position_index int not null`
+- `card_id int not null` *(0–77)*
+- `reversed boolean not null default false`
+- `note text null` *(position-specific note)*
+- Unique constraint: `(reading_id, position_index)` unique
+
+---
+
+## 2.3 Tags, search support
+
+### tarot_tags
+- `id uuid pk`
+- `user_id uuid fk -> users(id) on delete cascade`
+- `name text not null`
+- Unique constraint: `(user_id, name)` unique
+
+### tarot_reading_tags
+- `reading_id uuid fk -> tarot_readings(id) on delete cascade`
+- `tag_id uuid fk -> tarot_tags(id) on delete cascade`
+- Primary key: `(reading_id, tag_id)`
+
+> Search (V1): use full-text index on `question`, `notes_general`, `tarot_reading_cards.note`, and AI outputs (below).
+
+---
+
+## 2.4 AI: one-shot + chat + history analysis
+
+### ai_outputs
+Stores AI “artifacts” tied to a reading or session.
+- `id uuid pk`
+- `user_id uuid fk -> users(id) on delete cascade`
+- `session_id uuid fk -> tarot_sessions(id) on delete cascade`
+- `reading_id uuid null fk -> tarot_readings(id) on delete cascade`
+- `kind text not null`  
+  Examples: `one_shot_interpretation`, `chat_turn`, `history_analysis`
+- `depth text null` *(AiDepth where relevant)*
+- `prompt_version text not null`
+- `input_context jsonb not null` *(exact context payload you sent)*
+- `output_text text not null`
+- `created_at timestamptz not null`
+- `usage jsonb null` *(tokens, etc.)*
+- `credits_charged int null`
+
+> This table doubles as an audit log for “what did the model see” + “what did it say”.
+
+### chat_messages
+Thread per session (and optionally per reading, but your spec says per session).
+- `id uuid pk`
+- `session_id uuid fk -> tarot_sessions(id) on delete cascade`
+- `created_at timestamptz not null`
+- `role MessageRole not null` (`user`/`assistant`)
+- `content text not null`
+- `reading_id uuid null` *(optional: message is about a specific reading)*
+
+Index suggestions:
+- `(session_id, created_at)`
+- `(reading_id)` partial
+
+---
+
+## 2.5 Context management system (V1)
+
+You specified:
+
+Model always sees:
+- The most recent **20 interactions** between model and user
+- A **summary** of everything prior to these 20 interactions
+- The **most recent spread** laid + its question
+- A **short summary of all previous spreads** laid in this session
+- Past readings from past sessions can be called into context if appropriate
+
+### Data structures to support this
+
+#### session_context_state
+One row per session tracking summarization boundaries and ledger.
+- `session_id uuid pk fk -> tarot_sessions(id) on delete cascade`
+- `summary_text text not null default ''`
+- `summarized_through_message_id uuid null`  
+  (all messages <= this id are included in `summary_text`)
+- `ledger_text text not null default ''`  
+  (short summary of spreads/readings in this session, excluding active reading)
+- `active_reading_id uuid null`  
+  (mirror of tarot_sessions.active_reading_id for convenience)
+- `updated_at timestamptz not null`
+
+#### How to build the context payload (deterministic)
+When making an AI call for session S:
+
+1. Fetch `active_reading_id` and load that reading + cards + notes.
+2. Fetch last **20** `chat_messages` in S (ordered).
+3. Fetch `session_context_state.summary_text` (summarizes everything before those messages).
+4. Fetch `session_context_state.ledger_text` (spreads summary excluding active).
+5. Optionally attach “retrieved past readings” (see below).
+6. Compose model input in this order:
+   - System instructions
+   - `summary_text`
+   - `ledger_text`
+   - Active reading payload (question + spread snapshot + cards + notes + rng method used)
+   - Last 20 messages
+   - Retrieved past readings (if any)
+
+#### Ledger format (short, consistent)
+Store as text (easy) or JSON (more structured). Recommended text template:
+
+- `# Session Ledger`
+- For each previous reading in session (excluding active):
+  - Date/time
+  - Spread name
+  - Question (shortened)
+  - Cards (position_index: card_name + reversed marker)
+  - position meaning 
+
+#### Pulling past sessions into context (V1 baseline)
+Minimum viable: user explicitly chooses “Add past reading(s) to this conversation”:
+- UI: search history → “Attach to chat”
+- Backend: include those readings in the context payload under a “Retrieved Past Readings” section
+
+Optional V1 improvement: automatic suggestions via embeddings (can be V1.5):
+- Store embeddings for reading summaries/questions
+- Retrieve top-k similar readings when user asks something like “pattern in love readings”
+- Still keep it explicit in the payload: “Retrieved because similar to query …”
+
+---
+
+## 2.6 Premium gating + credits/payments (V1)
+
+### user_entitlements
+- `user_id uuid pk fk -> users(id) on delete cascade`
+- `is_premium boolean not null default false`
+- `premium_started_at timestamptz null`
+- `premium_expires_at timestamptz null` *(if subscription later)*
+
+### credits_ledger
+Single source of truth for credit balance.
+- `id uuid pk`
+- `user_id uuid fk -> users(id) on delete cascade`
+- `created_at timestamptz not null`
+- `type text not null`  
+  Examples: `purchase`, `spend`, `refund`, `promo`
+- `amount int not null`  
+  Positive for credit, negative for spend
+- `reference jsonb null`  
+  - purchase: provider, receipt id
+  - spend: ai_outputs.id, kind, tokens
+
+To compute balance:
+- `SELECT COALESCE(SUM(amount),0) FROM credits_ledger WHERE user_id = ?`
+
+### payments
+Track external payment processor events (Stripe).
+- `id uuid pk`
+- `user_id uuid fk -> users(id) on delete cascade`
+- `provider text not null` *(e.g. `stripe`)*
+- `provider_event_id text not null unique`
+- `created_at timestamptz not null`
+- `status text not null` *(received/processed/failed)*
+- `payload jsonb not null` *(raw event for audit)*
+
+---
+
+## 3) Implementation notes (keeps V1 from becoming a rewrite)
+
+- **Use the same object shapes** from MVP internally; V1 persistence is just storing them:
+  - `SpreadSnapshot`, `Reading`, `RngProvenance`, `AiInterpretationResult`
+- **Always snapshot spreads into readings**; never rely on live spread definitions for historical readings.
+- **Context state is session-level** (`session_context_state`), because your chat is per session.
+- Keep summarization deterministic:
+  - Only summarize when message count exceeds a threshold (e.g. > 40) and roll up the oldest chunk,
+  - update `summarized_through_message_id`,
+  - keep the newest 20 verbatim.
+
+---
+
+## 4) Quick “MVP → V1 migration” checklist
+
+- MVP `SessionState.readings[]` becomes V1 `tarot_sessions` + `tarot_readings` + `tarot_reading_cards`.
+- MVP custom spreads become V1 `tarot_spreads(owner_user_id=...)` + `tarot_spread_positions`.
+- MVP AI one-shot results become V1 `ai_outputs(kind='one_shot_interpretation')`.
+- Add `chat_messages` + `session_context_state` for V1 chat context preservation.
+- Add `credits_ledger` + `payments` + `user_entitlements` for premium gating.
+
+---

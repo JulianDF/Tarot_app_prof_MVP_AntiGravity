@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "schema_version": "1.1",
+    "language": "en",
+    "generated_at": "2026-01-12",
+    "notes": "Positions are explicit objects with index. Field names align with app data model."
+  },
+  "spreads": {
+    "energy_mix": {
+      "slug": "energy_mix",
+      "type": "system",
+      "name": "Energy Mix Spread",
+      "n_cards": 4,
+      "purpose": "Use this spread to understand the dynamics of energy in a relationship or interaction.",
+      "layout_descriptor": "12\n34",
+      "positions": [
+        {
+          "index": 0,
+          "meaning": "The energy, attitude, or input the user brings into the interaction"
+        },
+        {
+          "index": 1,
+          "meaning": "The energy, attitude, or input the 3rd party brings into the interaction"
+        },
+        {
+          "index": 2,
+          "meaning": "The interplay of energies between the user and the 3rd party"
+        },
+        {
+          "index": 3,
+          "meaning": "Conclusion, or a hint on to how to best handle the interaction"
+        }
+      ]
+    },
+    "diamond_spread": {
+      "slug": "diamond_spread",
+      "type": "system",
+      "name": "Diamond Spread",
+      "n_cards": 5,
+      "purpose": "Use this spread to gain an overview of a given situation.",
+      "layout_descriptor": "X5X\n213\nX4X",
+      "positions": [
+        {
+          "index": 0,
+          "meaning": "Describes the subject or the current situation of the user"
+        },
+        {
+          "index": 1,
+          "meaning": "Internal influences acting on the user or the situation"
+        },
+        {
+          "index": 2,
+          "meaning": "External influences acting on the user or the situation"
+        },
+        {
+          "index": 3,
+          "meaning": "The solution, or what is needed to achieve resolution or success"
+        },
+        {
+          "index": 4,
+          "meaning": "The outcome after the solution has been applied"
+        }
+      ]
+    },
+    "two_paths": {
+      "slug": "two_paths",
+      "type": "system",
+      "name": "Two Paths Spread",
+      "n_cards": 8,
+      "purpose": "Use this spread to choose between two options by comparing their benefits, drawbacks, and likely outcomes.",
+      "layout_descriptor": "7X4\n6X3\n512\nX8X",
+      "positions": [
+        {
+          "index": 0,
+          "meaning": "The current state of the user"
+        },
+        {
+          "index": 1,
+          "meaning": "The pros for choice A"
+        },
+        {
+          "index": 2,
+          "meaning": "The cons for choice A"
+        },
+        {
+          "index": 3,
+          "meaning": "The likely outcome of choice A"
+        },
+        {
+          "index": 4,
+          "meaning": "The pros for choice B"
+        },
+        {
+          "index": 5,
+          "meaning": "The cons for choice B"
+        },
+        {
+          "index": 6,
+          "meaning": "The likely outcome of choice B"
+        },
+        {
+          "index": 7,
+          "meaning": "Conclusion, or a hint on to how to best make a choice"
+        }
+      ]
+    },
+    "blockage": {
+      "slug": "blockage",
+      "type": "system",
+      "name": "Blockage Spread",
+      "n_cards": 6,
+      "purpose": "Use this spread to identify what is blocking progress and how to move through it toward the next step.",
+      "layout_descriptor": "2X6\n145\n3XX",
+      "positions": [
+        {
+          "index": 0,
+          "meaning": "the user’s current state, or the current situation"
+        },
+        {
+          "index": 1,
+          "meaning": "What energies need to be raised/cultivated in order to support the user on his journey"
+        },
+        {
+          "index": 2,
+          "meaning": "What energies need to be let go of"
+        },
+        {
+          "index": 3,
+          "meaning": "What is blocking the user"
+        },
+        {
+          "index": 4,
+          "meaning": "How to overcome the blockage"
+        },
+        {
+          "index": 5,
+          "meaning": "Where will this lead? What's the next step?"
+        }
+      ]
+    }
+  }
+}

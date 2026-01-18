@@ -1,0 +1,157 @@
+# Tarot App — Feature Roadmap (MVP → V1 → V2)
+
+This document defines the feature scope and prioritization for the Tarot App:
+- **MVP** proves the core loop end-to-end in a single session (no accounts, no saving, no paywall).
+- **V1** productizes the MVP (accounts, persistence, premium gating, credits/payments, chat with context preservation, search, exports, AI over history).
+- **V2** adds pro workflows (clients) and daily email digests.
+
+---
+
+## MVP feature list (no accounts, no saving, no paywall)
+
+### 1) Card database (static)
+- 78 cards
+- Upright + reversed meanings
+- Keywords 
+
+### 2) Standard spreads (built-in)
+Include these standard spreads:
+- **Diamond** (5 cards)
+- **Energy Mix** (4 cards)
+- **Blockage** (6 cards)
+- **Two Paths** (8 cards)
+
+Each spread must have:
+- `name`
+- `purpose` / `when_to_use`
+- `n_cards`
+- `positions[]` (meaning of each position)
+- `layout_descriptor` (simple grid/string like so X5X\n213\nX4X for diamond)
+
+Layout parsing rules:
+- Rows are separated by `\n`.
+- Tokens are split by comma or whitespace; if no separators, parse per character.
+- `X` = empty slot; integer tokens are 1-based position indexes.
+
+### 3) Custom spread builder (deferred to V1)
+- Deferred in MVP; see V1 list.
+
+### 4) New reading flow
+- Enter question (free text; can be before or after spread selection)
+- Choose spread
+- Choose draw mode:
+  - QRNG (default) or slot machine mechanics (described below)
+  - Manual entry (optional, but recommended)
+  - A session may contain multiple readings. IN MVP, readings persist during a session (no save option)
+
+### 5) RNG system (MVP-critical)
+Implement a **cascade** with provenance metadata (even if not persisted yet—store in session state):
+1. Primary: **QRNG**
+2. Fallback: **random.org**
+3. Fallback: **slot-machine click selection** (rapid loop through cards; user clicks to select)
+
+Requirements:
+- Ensure uniqueness (no duplicates), unless a user toggles “allow duplicates”
+- `allow_reversals` applies to system draws only; manual entry always lets the user choose orientation
+- Do not balance reversals across a batch; randomness may skew in small samples
+- Record provenance metadata in the active session:
+  - `rng_method_used`: `qrng | random_org | slot_machine | manual`
+  - `rng_provider` (if applicable)
+  - timestamps and any provider request/receipt id if available
+
+### 6) Reading view (non-AI interpretation aid)
+- Display layout + drawn cards
+- For each position:
+  - position meaning
+  - card meaning (upright/reversed)
+- Question is locked after draw
+- ability to scroll through past readings in the current session.
+
+### 7) AI interpretation (one-shot)
+- Button: “Interpret this spread” → one cohesive output
+- Interpretation only for active reading in the session. No interpretation across readings in MVP.
+
+**MVP definition of done**
+A user can do a reading end-to-end in one sitting and leave with something meaningful.
+
+---
+
+## V1 feature list (productization + premium layer)
+### 8) Custom spread builder
+- Create/edit/delete custom spreads
+- Layout editor (simple grid/string)
+- positions (assign meaning to each position)
+- Validation: `len(positions) == n_cards`
+
+### 9) User accounts
+- Signup / login / logout
+- Password reset
+
+### 10) Save + history
+- Save sessions (each session may contain multiple readings)
+- History: list + open + delete
+- Notes per reading (general + by position)
+- (Optional) export/backup
+
+### 11) Premium paywall
+- AI features hidden/locked behind premium state
+- Upgrade flow messaging (even if payments aren’t wired yet)
+
+### 12) Credits + payments
+- Credits balance
+- Purchase credits
+- Credits ledger (auditable: purchases + spends)
+
+### 13) Chat anchored to readings (context preservation)
+- Chat thread per session, may include multiple spreads
+- Model context rules:
+- interpretation focuses on active spread. Past spreads in a given session will be preserved in context in condensed form. 
+  - Active context management: model always sees: 
+  - The most recent 20 interactions between the model and the user. 
+  - A summary of everything that happened prior to these 20 interactions.
+  - The most recent spread laid, and the question it is supposed to answer.
+   - A short summary of all previous spreads laid in this session.
+
+### 14) Search & filters (proper)
+- Filters: spread, date range
+- Full-text search over: question + notes + AI output
+
+### 15) Tags
+- Add/edit tags per reading
+- Filter by tags
+
+### 16) Filter by card
+- Example: “Show readings containing The Tower”
+
+### 17) Card encyclopedia
+- Browse/search cards
+- Card detail pages
+
+### 18) Export / backup
+- Export single reading (image/PDF)
+- Export all data (JSON/CSV)
+- Import restore (nice-to-have)
+
+### 19) AI across history (topic overview / pattern mining)
+- Example: “Summarize my love readings since October”
+- Output: recurring cards/themes + turning points
+- past sessions can be called into context by the model or the user if appropriate 
+
+### 20) Quality + safety
+- Rate limiting / abuse guardrails
+- Disclaimers
+
+---
+
+## V2
+- **Client support** (profiles + history per client + pro workflow)
+- **Daily emails** (topic-based draw + interpretation + digest)
+
+---
+
+## Guardrails (implementation notes)
+- Even in MVP, design internal objects as if V1 persistence exists:
+  - `Reading`, `Spread`, `CardDraw`, `RngProvenance`, `AiInterpretationResult`
+  This makes V1 persistence mostly “save these objects”.
+
+- Put QRNG/random.org behind a backend service even in MVP if possible to avoid CORS/rate-limit issues and to standardize fallback logic.

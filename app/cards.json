@@ -1,0 +1,1730 @@
+{
+  "meta": {
+    "schema_version": "1.1",
+    "language": "en",
+    "created_at": "2026-01-12",
+    "notes": "Meanings are short, static interpretation aids (not predictive). Keywords are compact anchors; use context and position meanings from spreads.",
+    "asset_repo": "Wikimedia Commons \u2013 Vectorized Tarot by Immanuelle",
+    "asset_base_url": "/cards-svg",
+    "image_naming": "0.svg..77.svg",
+    "generated_at": "2026-01-12"
+  },
+  "cards": [
+    {
+      "id": 0,
+      "name": "The Fool",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "beginnings",
+        "innocence",
+        "leap of faith",
+        "spontaneity"
+      ],
+      "meaning": "New beginnings and open-hearted curiosity. Trusting the path enough to take the first step and learn as you go.",
+      "keywords_reversed": [
+        "recklessness",
+        "naivety",
+        "avoidance",
+        "poor judgment"
+      ],
+      "meaning_reversed": "A leap without looking, or fear that blocks a fresh start. Missed cues, sloppy risks, or refusal to begin.",
+      "image": "/cards-svg/0.svg"
+    },
+    {
+      "id": 1,
+      "name": "The Magician",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "willpower",
+        "skill",
+        "manifestation",
+        "initiative"
+      ],
+      "meaning": "Turning intention into action. Using tools, talent, and focus to shape outcomes through clear choices.",
+      "keywords_reversed": [
+        "manipulation",
+        "scattered energy",
+        "untapped talent",
+        "trickery"
+      ],
+      "meaning_reversed": "Power used poorly or performatively. Talent without follow-through, or influence that veers into control.",
+      "image": "/cards-svg/1.svg"
+    },
+    {
+      "id": 2,
+      "name": "The High Priestess",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "intuition",
+        "inner knowing",
+        "mystery",
+        "stillness"
+      ],
+      "meaning": "Quiet insight and deep perception. The truth is felt more than explained; listen inward and observe.",
+      "keywords_reversed": [
+        "disconnection",
+        "secrecy",
+        "noise",
+        "ignored intuition"
+      ],
+      "meaning_reversed": "Ignoring your own signals or drowning them out. Information withheld, misread, or kept for the wrong reasons.",
+      "image": "/cards-svg/2.svg"
+    },
+    {
+      "id": 3,
+      "name": "The Empress",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "nurturing",
+        "abundance",
+        "creativity",
+        "sensuality"
+      ],
+      "meaning": "Growth through care and presence. Creating, sustaining, and enjoying the life you\u2019re building.",
+      "keywords_reversed": [
+        "overgiving",
+        "stagnation",
+        "neglect",
+        "creative block"
+      ],
+      "meaning_reversed": "Care out of balance: depletion, smothering, or neglect. Creativity and warmth get stuck or withheld.",
+      "image": "/cards-svg/3.svg"
+    },
+    {
+      "id": 4,
+      "name": "The Emperor",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "structure",
+        "authority",
+        "stability",
+        "boundaries"
+      ],
+      "meaning": "Order, responsibility, and clear boundaries. Building something durable through discipline and leadership.",
+      "keywords_reversed": [
+        "rigidity",
+        "control",
+        "instability",
+        "power struggle"
+      ],
+      "meaning_reversed": "Control for its own sake, or structure collapsing from avoidance. A clash over authority and rules.",
+      "image": "/cards-svg/4.svg"
+    },
+    {
+      "id": 5,
+      "name": "The Hierophant",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "tradition",
+        "teaching",
+        "values",
+        "institutions"
+      ],
+      "meaning": "Guidance through shared values, mentors, and proven frameworks. Learning from a lineage or system.",
+      "keywords_reversed": [
+        "rebellion",
+        "dogma",
+        "misfit",
+        "empty ritual"
+      ],
+      "meaning_reversed": "Questioning the rules or rejecting a system that doesn\u2019t fit. Tradition becomes limiting or performative.",
+      "image": "/cards-svg/5.svg"
+    },
+    {
+      "id": 6,
+      "name": "The Lovers",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "union",
+        "choice",
+        "alignment",
+        "connection"
+      ],
+      "meaning": "A meaningful bond or a defining choice. Alignment of values, desire, and action.",
+      "keywords_reversed": [
+        "disharmony",
+        "misalignment",
+        "temptation",
+        "avoidance"
+      ],
+      "meaning_reversed": "A split between values and behavior. Mixed signals, uneven commitment, or choices made from fear.",
+      "image": "/cards-svg/6.svg"
+    },
+    {
+      "id": 7,
+      "name": "The Chariot",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "drive",
+        "control",
+        "victory",
+        "direction"
+      ],
+      "meaning": "Momentum through focus and self-control. Picking a direction and pushing forward with commitment.",
+      "keywords_reversed": [
+        "scattered effort",
+        "aggression",
+        "stalling",
+        "lack of control"
+      ],
+      "meaning_reversed": "Motion without direction, or control slipping. Force replaces strategy; progress stalls or turns chaotic.",
+      "image": "/cards-svg/7.svg"
+    },
+    {
+      "id": 8,
+      "name": "Strength",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "courage",
+        "patience",
+        "compassion",
+        "inner power"
+      ],
+      "meaning": "Steady courage and gentle mastery. Handling intensity with calm, integrity, and heart.",
+      "keywords_reversed": [
+        "self-doubt",
+        "insecurity",
+        "impulsiveness",
+        "burnout"
+      ],
+      "meaning_reversed": "Confidence wavers or emotions run the show. Power feels forced, or energy drains from over-effort.",
+      "image": "/cards-svg/8.svg"
+    },
+    {
+      "id": 9,
+      "name": "The Hermit",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "solitude",
+        "search",
+        "wisdom",
+        "reflection"
+      ],
+      "meaning": "A pause for insight. Stepping back to clarify what\u2019s true, essential, and worth pursuing.",
+      "keywords_reversed": [
+        "isolation",
+        "avoidance",
+        "withdrawal",
+        "stagnation"
+      ],
+      "meaning_reversed": "Retreat turns into hiding, or reflection becomes stuckness. Cutting off support or dodging reality.",
+      "image": "/cards-svg/9.svg"
+    },
+    {
+      "id": 10,
+      "name": "Wheel of Fortune",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "change",
+        "cycles",
+        "luck",
+        "turning point"
+      ],
+      "meaning": "A shift in circumstances. Cycles turn; timing matters, and flexibility helps you ride the change.",
+      "keywords_reversed": [
+        "resistance",
+        "bad timing",
+        "setback",
+        "repeating patterns"
+      ],
+      "meaning_reversed": "Fighting the cycle or repeating the same lesson. Delays, setbacks, or patterns that won\u2019t break yet.",
+      "image": "/cards-svg/10.svg"
+    },
+    {
+      "id": 11,
+      "name": "Justice",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "truth",
+        "fairness",
+        "accountability",
+        "balance"
+      ],
+      "meaning": "Clear-eyed honesty and consequences. Decisions based on facts, ethics, and proportional response.",
+      "keywords_reversed": [
+        "bias",
+        "avoidance",
+        "unfairness",
+        "dishonesty"
+      ],
+      "meaning_reversed": "Skewed judgment or dodged accountability. Truth gets bent, or fairness is missing from the equation.",
+      "image": "/cards-svg/11.svg"
+    },
+    {
+      "id": 12,
+      "name": "The Hanged Man",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "pause",
+        "surrender",
+        "new perspective",
+        "reframing"
+      ],
+      "meaning": "A deliberate pause that changes how you see things. Letting go of control to gain insight.",
+      "keywords_reversed": [
+        "stuck",
+        "martyrdom",
+        "delay",
+        "resistance"
+      ],
+      "meaning_reversed": "Stagnation without learning. Sacrifice that breeds resentment, or refusal to see another angle.",
+      "image": "/cards-svg/12.svg"
+    },
+    {
+      "id": 13,
+      "name": "Death",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "ending",
+        "transformation",
+        "release",
+        "renewal"
+      ],
+      "meaning": "An ending that clears space for renewal. Letting go of what\u2019s done so the next chapter can begin.",
+      "keywords_reversed": [
+        "clinging",
+        "fear of change",
+        "stagnation",
+        "unfinished business"
+      ],
+      "meaning_reversed": "Holding on past the expiration date. Change is delayed, messy, or resisted despite obvious closure.",
+      "image": "/cards-svg/13.svg"
+    },
+    {
+      "id": 14,
+      "name": "Temperance",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "balance",
+        "integration",
+        "patience",
+        "moderation"
+      ],
+      "meaning": "Blending opposites into something workable. Steady progress through moderation and thoughtful pacing.",
+      "keywords_reversed": [
+        "extremes",
+        "imbalance",
+        "friction",
+        "overindulgence"
+      ],
+      "meaning_reversed": "Too much, too fast, or not enough care. Parts don\u2019t integrate; tension rises and harmony slips.",
+      "image": "/cards-svg/14.svg"
+    },
+    {
+      "id": 15,
+      "name": "The Devil",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "attachment",
+        "temptation",
+        "shadow",
+        "power dynamics"
+      ],
+      "meaning": "Bondage to desire, fear, or habits. Seeing where you\u2019re hooked\u2014and what it costs.",
+      "keywords_reversed": [
+        "release",
+        "detachment",
+        "reclaiming power",
+        "breaking patterns"
+      ],
+      "meaning_reversed": "A chance to loosen the chains. Awareness grows; you step out of a trap or renegotiate a dynamic.",
+      "image": "/cards-svg/15.svg"
+    },
+    {
+      "id": 16,
+      "name": "The Tower",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "shock",
+        "revelation",
+        "collapse",
+        "liberation"
+      ],
+      "meaning": "A sudden shake-up that exposes what\u2019s unstable. Painful clarity that forces an honest rebuild.",
+      "keywords_reversed": [
+        "avoided change",
+        "slow collapse",
+        "denial",
+        "prolonged tension"
+      ],
+      "meaning_reversed": "Trying to avoid the inevitable, or a breakdown happening in slow motion. Truth leaks out over time.",
+      "image": "/cards-svg/16.svg"
+    },
+    {
+      "id": 17,
+      "name": "The Star",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "hope",
+        "healing",
+        "renewal",
+        "guidance"
+      ],
+      "meaning": "A return of faith and calm after turbulence. Healing, clarity, and a gentle sense of direction.",
+      "keywords_reversed": [
+        "doubt",
+        "discouragement",
+        "dimmed hope",
+        "disconnection"
+      ],
+      "meaning_reversed": "Hope feels far or fragile. Cynicism, exhaustion, or disconnection from what inspires you.",
+      "image": "/cards-svg/17.svg"
+    },
+    {
+      "id": 18,
+      "name": "The Moon",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "uncertainty",
+        "intuition",
+        "illusion",
+        "dreams"
+      ],
+      "meaning": "Foggy terrain and emotional undercurrents. Trust intuition, but verify\u2014things aren\u2019t fully revealed yet.",
+      "keywords_reversed": [
+        "clarity",
+        "truth emerging",
+        "reduced fear",
+        "unmasking"
+      ],
+      "meaning_reversed": "The haze lifts. Confusion decreases, deception is spotted, and intuition becomes easier to read.",
+      "image": "/cards-svg/18.svg"
+    },
+    {
+      "id": 19,
+      "name": "The Sun",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "joy",
+        "success",
+        "vitality",
+        "clarity"
+      ],
+      "meaning": "Warmth, confidence, and visible progress. Things become simpler, brighter, and more life-giving.",
+      "keywords_reversed": [
+        "overexposure",
+        "ego",
+        "delays",
+        "dimmed joy"
+      ],
+      "meaning_reversed": "Joy is blocked or overstated. Confidence wobbles, or success is delayed by pride or burnout.",
+      "image": "/cards-svg/19.svg"
+    },
+    {
+      "id": 20,
+      "name": "Judgement",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "reckoning",
+        "awakening",
+        "calling",
+        "forgiveness"
+      ],
+      "meaning": "A moment of truth and a chance to choose again. Closure, accountability, and stepping into a clearer path.",
+      "keywords_reversed": [
+        "self-criticism",
+        "avoidance",
+        "stuck past",
+        "denial"
+      ],
+      "meaning_reversed": "Refusing the wake-up call. Harsh self-judgment or avoidance keeps you repeating yesterday.",
+      "image": "/cards-svg/20.svg"
+    },
+    {
+      "id": 21,
+      "name": "The World",
+      "arcana": "major",
+      "suit": null,
+      "rank": null,
+      "keywords": [
+        "completion",
+        "integration",
+        "achievement",
+        "wholeness"
+      ],
+      "meaning": "A cycle completes. Integration, mastery, and the satisfaction of finishing what you started.",
+      "keywords_reversed": [
+        "unfinished",
+        "delays",
+        "loose ends",
+        "incompletion"
+      ],
+      "meaning_reversed": "Almost there, but something needs closure. A final step, a missing piece, or fear of finishing.",
+      "image": "/cards-svg/21.svg"
+    },
+    {
+      "id": 22,
+      "name": "Ace of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "ace",
+      "keywords": [
+        "inspiration",
+        "spark",
+        "initiative",
+        "creation"
+      ],
+      "meaning": "A fresh surge of energy and desire to begin. A bold idea asking for action and experimentation.",
+      "keywords_reversed": [
+        "hesitation",
+        "false start",
+        "low energy",
+        "blocked passion"
+      ],
+      "meaning_reversed": "The spark flickers. Doubt, delay, or scattered effort prevents the idea from catching fire.",
+      "image": "/cards-svg/22.svg"
+    },
+    {
+      "id": 23,
+      "name": "Two of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "two",
+      "keywords": [
+        "planning",
+        "vision",
+        "options",
+        "expansion"
+      ],
+      "meaning": "Looking beyond the current horizon. Making a plan, weighing options, and choosing a direction to grow.",
+      "keywords_reversed": [
+        "playing small",
+        "fear of change",
+        "lack of plan",
+        "indecision"
+      ],
+      "meaning_reversed": "Vision without movement, or movement without vision. Fear narrows the world; plans stall.",
+      "image": "/cards-svg/23.svg"
+    },
+    {
+      "id": 24,
+      "name": "Three of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "three",
+      "keywords": [
+        "progress",
+        "momentum",
+        "foresight",
+        "results"
+      ],
+      "meaning": "Early results and growing momentum. You\u2019ve set things in motion\u2014now track what\u2019s coming back.",
+      "keywords_reversed": [
+        "delays",
+        "missed timing",
+        "limited growth",
+        "setbacks"
+      ],
+      "meaning_reversed": "Plans hit friction. Timing is off or support is thin; adjust strategy rather than forcing it.",
+      "image": "/cards-svg/24.svg"
+    },
+    {
+      "id": 25,
+      "name": "Four of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "four",
+      "keywords": [
+        "celebration",
+        "home",
+        "stability",
+        "milestone"
+      ],
+      "meaning": "A pause to celebrate and ground the win. Community, belonging, and a stable base to build from.",
+      "keywords_reversed": [
+        "tension at home",
+        "unstable foundation",
+        "cancelled plans",
+        "outsider"
+      ],
+      "meaning_reversed": "Celebration feels forced, or stability is shaky. Domestic friction, misalignment, or a missing sense of belonging.",
+      "image": "/cards-svg/25.svg"
+    },
+    {
+      "id": 26,
+      "name": "Five of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "five",
+      "keywords": [
+        "competition",
+        "friction",
+        "practice",
+        "conflict"
+      ],
+      "meaning": "Clashing energy and competing agendas. Useful conflict can sharpen skills if it stays fair and focused.",
+      "keywords_reversed": [
+        "avoidance",
+        "inner conflict",
+        "petty fights",
+        "tension"
+      ],
+      "meaning_reversed": "Drama without purpose, or conflict pushed underground. The real issue needs naming and structure.",
+      "image": "/cards-svg/26.svg"
+    },
+    {
+      "id": 27,
+      "name": "Six of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "six",
+      "keywords": [
+        "recognition",
+        "victory",
+        "confidence",
+        "support"
+      ],
+      "meaning": "A visible win and earned recognition. Momentum increases when you accept support and show up proudly.",
+      "keywords_reversed": [
+        "ego",
+        "doubt",
+        "lack of support",
+        "private win"
+      ],
+      "meaning_reversed": "Success feels shaky or unshared. Attention, validation, or teamwork is missing\u2014or ego gets in the way.",
+      "image": "/cards-svg/27.svg"
+    },
+    {
+      "id": 28,
+      "name": "Seven of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "seven",
+      "keywords": [
+        "defense",
+        "conviction",
+        "boundaries",
+        "challenge"
+      ],
+      "meaning": "Holding your ground. Defend what matters with clarity and backbone\u2014especially under pressure.",
+      "keywords_reversed": [
+        "overwhelmed",
+        "giving up",
+        "weak boundaries",
+        "burnout"
+      ],
+      "meaning_reversed": "Too many battles at once. Boundaries slip; energy drains. Choose what\u2019s worth defending.",
+      "image": "/cards-svg/28.svg"
+    },
+    {
+      "id": 29,
+      "name": "Eight of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "eight",
+      "keywords": [
+        "speed",
+        "movement",
+        "messages",
+        "alignment"
+      ],
+      "meaning": "Fast movement and clear momentum. Things line up; communication flows; events accelerate.",
+      "keywords_reversed": [
+        "delays",
+        "miscommunication",
+        "chaos",
+        "scattered focus"
+      ],
+      "meaning_reversed": "Static, crossed wires, or frantic speed without coordination. Slow down enough to aim.",
+      "image": "/cards-svg/29.svg"
+    },
+    {
+      "id": 30,
+      "name": "Nine of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "nine",
+      "keywords": [
+        "resilience",
+        "boundaries",
+        "persistence",
+        "caution"
+      ],
+      "meaning": "Staying steady after setbacks. Protect your energy, learn from experience, and keep going wisely.",
+      "keywords_reversed": [
+        "paranoia",
+        "exhaustion",
+        "defensiveness",
+        "giving up"
+      ],
+      "meaning_reversed": "Guard up too high, or energy too low. Past wounds run the present; rest and recalibrate.",
+      "image": "/cards-svg/30.svg"
+    },
+    {
+      "id": 31,
+      "name": "Ten of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "ten",
+      "keywords": [
+        "burden",
+        "overwork",
+        "responsibility",
+        "strain"
+      ],
+      "meaning": "Carrying too much alone. Success comes with weight; prioritize, delegate, and set limits.",
+      "keywords_reversed": [
+        "release",
+        "delegation",
+        "burnout",
+        "dropping load"
+      ],
+      "meaning_reversed": "Putting the burden down. Asking for help, simplifying, and choosing what\u2019s actually yours to carry.",
+      "image": "/cards-svg/31.svg"
+    },
+    {
+      "id": 32,
+      "name": "Page of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "page",
+      "keywords": [
+        "curiosity",
+        "exploration",
+        "news",
+        "enthusiasm"
+      ],
+      "meaning": "A playful new spark\u2014learning, experimenting, and saying yes to possibility.",
+      "keywords_reversed": [
+        "immaturity",
+        "insecurity",
+        "false hype",
+        "lack of direction"
+      ],
+      "meaning_reversed": "Enthusiasm without substance, or fear of looking foolish. Energy scatters; the message is unclear.",
+      "image": "/cards-svg/32.svg"
+    },
+    {
+      "id": 33,
+      "name": "Knight of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "knight",
+      "keywords": [
+        "boldness",
+        "adventure",
+        "impulse",
+        "passion"
+      ],
+      "meaning": "A confident push forward. Taking risks, acting fast, and chasing what excites you.",
+      "keywords_reversed": [
+        "recklessness",
+        "inconsistency",
+        "hot temper",
+        "flightiness"
+      ],
+      "meaning_reversed": "Fast starts and faster exits. Impulses overrule commitments; intensity becomes unstable.",
+      "image": "/cards-svg/33.svg"
+    },
+    {
+      "id": 34,
+      "name": "Queen of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "queen",
+      "keywords": [
+        "confidence",
+        "magnetism",
+        "warmth",
+        "leadership"
+      ],
+      "meaning": "Radiant self-belief and creative command. You lead by example, with generosity and fire.",
+      "keywords_reversed": [
+        "jealousy",
+        "insecurity",
+        "control",
+        "burnout"
+      ],
+      "meaning_reversed": "Confidence turns brittle. Comparison, possessiveness, or over-control dims the warmth.",
+      "image": "/cards-svg/34.svg"
+    },
+    {
+      "id": 35,
+      "name": "King of Wands",
+      "arcana": "minor",
+      "suit": "wands",
+      "rank": "king",
+      "keywords": [
+        "vision",
+        "entrepreneurship",
+        "command",
+        "integrity"
+      ],
+      "meaning": "Big-picture leadership and decisive action. Turning passion into strategy and results.",
+      "keywords_reversed": [
+        "domineering",
+        "impulsive",
+        "ruthless",
+        "ego"
+      ],
+      "meaning_reversed": "Vision becomes forceful or self-serving. Overconfidence, impatience, or power plays derail the mission.",
+      "image": "/cards-svg/35.svg"
+    },
+    {
+      "id": 36,
+      "name": "Ace of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "ace",
+      "keywords": [
+        "love",
+        "openness",
+        "emotional renewal",
+        "compassion"
+      ],
+      "meaning": "An opening of the heart. Fresh emotional energy, connection, and the willingness to feel fully.",
+      "keywords_reversed": [
+        "blocked feelings",
+        "numbness",
+        "withholding",
+        "emotional spillover"
+      ],
+      "meaning_reversed": "A closed cup\u2014feelings are suppressed or overflowing. Vulnerability is resisted or mishandled.",
+      "image": "/cards-svg/36.svg"
+    },
+    {
+      "id": 37,
+      "name": "Two of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "two",
+      "keywords": [
+        "partnership",
+        "mutuality",
+        "harmony",
+        "agreement"
+      ],
+      "meaning": "A balanced connection. Mutual respect, shared feeling, and a meeting of equals.",
+      "keywords_reversed": [
+        "imbalance",
+        "miscommunication",
+        "broken trust",
+        "codependency"
+      ],
+      "meaning_reversed": "The bond is uneven or unclear. Needs don\u2019t match, or trust and communication fray.",
+      "image": "/cards-svg/37.svg"
+    },
+    {
+      "id": 38,
+      "name": "Three of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "three",
+      "keywords": [
+        "friendship",
+        "celebration",
+        "support",
+        "community"
+      ],
+      "meaning": "Shared joy and emotional support. Friendship, belonging, and celebration with your people.",
+      "keywords_reversed": [
+        "gossip",
+        "exclusion",
+        "overindulgence",
+        "surface connections"
+      ],
+      "meaning_reversed": "Community turns messy or shallow. Drama, jealousy, or excess disrupts what should be supportive.",
+      "image": "/cards-svg/38.svg"
+    },
+    {
+      "id": 39,
+      "name": "Four of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "four",
+      "keywords": [
+        "apathy",
+        "reflection",
+        "discontent",
+        "pause"
+      ],
+      "meaning": "Emotional disengagement or dissatisfaction. A pause to notice what you actually want\u2014and what you\u2019re ignoring.",
+      "keywords_reversed": [
+        "re-engagement",
+        "new interest",
+        "awareness",
+        "acceptance"
+      ],
+      "meaning_reversed": "The heart wakes up. Fresh perspective, renewed interest, and willingness to take an offered opportunity.",
+      "image": "/cards-svg/39.svg"
+    },
+    {
+      "id": 40,
+      "name": "Five of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "five",
+      "keywords": [
+        "loss",
+        "grief",
+        "regret",
+        "disappointment"
+      ],
+      "meaning": "Grieving what didn\u2019t work. Honor the loss, while remembering not everything is gone.",
+      "keywords_reversed": [
+        "healing",
+        "acceptance",
+        "moving on",
+        "perspective"
+      ],
+      "meaning_reversed": "Recovery begins. You start turning toward what remains and rebuilding from a more honest place.",
+      "image": "/cards-svg/40.svg"
+    },
+    {
+      "id": 41,
+      "name": "Six of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "six",
+      "keywords": [
+        "nostalgia",
+        "innocence",
+        "memory",
+        "kindness"
+      ],
+      "meaning": "Warm memory and simple goodness. Revisiting the past with tenderness; returning to what feels familiar.",
+      "keywords_reversed": [
+        "stuck past",
+        "rose-tinting",
+        "naivety",
+        "moving forward"
+      ],
+      "meaning_reversed": "Nostalgia becomes a trap, or the past is idealized. A call to grow up and meet the present.",
+      "image": "/cards-svg/41.svg"
+    },
+    {
+      "id": 42,
+      "name": "Seven of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "seven",
+      "keywords": [
+        "choices",
+        "fantasy",
+        "temptation",
+        "possibilities"
+      ],
+      "meaning": "Many options, not all real. Dreaming big, but needing discernment and grounding.",
+      "keywords_reversed": [
+        "clarity",
+        "decision",
+        "focus",
+        "reality check"
+      ],
+      "meaning_reversed": "Fog clears. You choose, simplify, and commit\u2014letting go of fantasy to act in reality.",
+      "image": "/cards-svg/42.svg"
+    },
+    {
+      "id": 43,
+      "name": "Eight of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "eight",
+      "keywords": [
+        "walking away",
+        "search",
+        "disillusionment",
+        "growth"
+      ],
+      "meaning": "Leaving what no longer satisfies. A brave move toward deeper meaning, even if it\u2019s lonely at first.",
+      "keywords_reversed": [
+        "avoidance",
+        "fear of leaving",
+        "returning",
+        "unfinished emotions"
+      ],
+      "meaning_reversed": "Staying when you should go, or going when you should stay. Avoidance, hesitation, or a return for closure.",
+      "image": "/cards-svg/43.svg"
+    },
+    {
+      "id": 44,
+      "name": "Nine of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "nine",
+      "keywords": [
+        "contentment",
+        "pleasure",
+        "satisfaction",
+        "gratitude"
+      ],
+      "meaning": "Enjoying the good stuff. Emotional fulfillment, comfort, and appreciation for what you\u2019ve created.",
+      "keywords_reversed": [
+        "overindulgence",
+        "emptiness",
+        "entitlement",
+        "restlessness"
+      ],
+      "meaning_reversed": "Pleasure without depth. Overdoing it, or realizing a desire fulfilled still doesn\u2019t satisfy.",
+      "image": "/cards-svg/44.svg"
+    },
+    {
+      "id": 45,
+      "name": "Ten of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "ten",
+      "keywords": [
+        "harmony",
+        "family",
+        "belonging",
+        "emotional completion"
+      ],
+      "meaning": "Emotional wholeness and shared happiness. Love that feels stable, supportive, and aligned.",
+      "keywords_reversed": [
+        "disharmony",
+        "misalignment",
+        "fractured home",
+        "unmet ideals"
+      ],
+      "meaning_reversed": "The picture-perfect ideal cracks. Needs differ; home or relationship requires honest repair.",
+      "image": "/cards-svg/45.svg"
+    },
+    {
+      "id": 46,
+      "name": "Page of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "page",
+      "keywords": [
+        "sensitivity",
+        "surprise",
+        "creative impulse",
+        "messages"
+      ],
+      "meaning": "A tender emotional beginning\u2014curiosity, openness, and a small invitation to connect or create.",
+      "keywords_reversed": [
+        "immaturity",
+        "moodiness",
+        "insecurity",
+        "blocked creativity"
+      ],
+      "meaning_reversed": "Feelings are reactive or unprocessed. Sensitivity turns defensive; creativity stalls from self-doubt.",
+      "image": "/cards-svg/46.svg"
+    },
+    {
+      "id": 47,
+      "name": "Knight of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "knight",
+      "keywords": [
+        "romance",
+        "charm",
+        "idealism",
+        "pursuit"
+      ],
+      "meaning": "Following the heart with grace. Romantic or creative pursuit fueled by imagination and sincerity.",
+      "keywords_reversed": [
+        "unrealistic",
+        "inconsistency",
+        "emotional manipulation",
+        "escapism"
+      ],
+      "meaning_reversed": "Sweet words without grounding. Idealism becomes escapism, or charm is used to dodge responsibility.",
+      "image": "/cards-svg/47.svg"
+    },
+    {
+      "id": 48,
+      "name": "Queen of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "queen",
+      "keywords": [
+        "empathy",
+        "intuition",
+        "care",
+        "emotional wisdom"
+      ],
+      "meaning": "Deep emotional intelligence. Compassionate presence, strong intuition, and steady support.",
+      "keywords_reversed": [
+        "overwhelm",
+        "codependency",
+        "emotional leakage",
+        "martyrdom"
+      ],
+      "meaning_reversed": "Too porous or too involved. Emotions flood boundaries; care becomes rescuing or self-erasure.",
+      "image": "/cards-svg/48.svg"
+    },
+    {
+      "id": 49,
+      "name": "King of Cups",
+      "arcana": "minor",
+      "suit": "cups",
+      "rank": "king",
+      "keywords": [
+        "emotional mastery",
+        "stability",
+        "wisdom",
+        "diplomacy"
+      ],
+      "meaning": "Steady heart and mature compassion. Calm leadership that can hold feelings without being ruled by them.",
+      "keywords_reversed": [
+        "suppression",
+        "coldness",
+        "volatility",
+        "manipulation"
+      ],
+      "meaning_reversed": "Emotions get buried or weaponized. Detachment, mood swings, or control replaces genuine care.",
+      "image": "/cards-svg/49.svg"
+    },
+    {
+      "id": 50,
+      "name": "Ace of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "ace",
+      "keywords": [
+        "clarity",
+        "truth",
+        "breakthrough",
+        "focus"
+      ],
+      "meaning": "A clean mental breakthrough. Clear truth, decisive thinking, and the courage to name what is real.",
+      "keywords_reversed": [
+        "confusion",
+        "misinformation",
+        "mental fog",
+        "poor judgment"
+      ],
+      "meaning_reversed": "The blade is dull or misused. Confusion, distorted facts, or rash conclusions cloud judgment.",
+      "image": "/cards-svg/50.svg"
+    },
+    {
+      "id": 51,
+      "name": "Two of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "two",
+      "keywords": [
+        "stalemate",
+        "choice",
+        "guardedness",
+        "balance"
+      ],
+      "meaning": "A guarded pause before a decision. Weighing options and protecting the heart while seeking mental balance.",
+      "keywords_reversed": [
+        "indecision",
+        "avoidance",
+        "information overload",
+        "truth revealed"
+      ],
+      "meaning_reversed": "The stalemate breaks\u2014often messily. Avoidance ends, pressure rises, and the truth pushes through.",
+      "image": "/cards-svg/51.svg"
+    },
+    {
+      "id": 52,
+      "name": "Three of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "three",
+      "keywords": [
+        "heartbreak",
+        "grief",
+        "truth",
+        "separation"
+      ],
+      "meaning": "Painful clarity and emotional hurt. A wound that asks to be acknowledged so it can heal cleanly.",
+      "keywords_reversed": [
+        "healing",
+        "reconciliation",
+        "release",
+        "processing grief"
+      ],
+      "meaning_reversed": "Recovery after heartbreak. Forgiveness, closure, and moving through grief rather than staying stuck in it.",
+      "image": "/cards-svg/52.svg"
+    },
+    {
+      "id": 53,
+      "name": "Four of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "four",
+      "keywords": [
+        "rest",
+        "recovery",
+        "pause",
+        "mental reset"
+      ],
+      "meaning": "Rest and repair for the mind and nervous system. A needed pause before the next push.",
+      "keywords_reversed": [
+        "restlessness",
+        "burnout",
+        "forced pause",
+        "re-entry"
+      ],
+      "meaning_reversed": "Rest is resisted or insufficient. Burnout risk rises, or you\u2019re being pushed back into action too soon.",
+      "image": "/cards-svg/53.svg"
+    },
+    {
+      "id": 54,
+      "name": "Five of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "five",
+      "keywords": [
+        "conflict",
+        "ego",
+        "winning",
+        "fallout"
+      ],
+      "meaning": "A fight with a cost. Winning may be hollow; consider what gets damaged when ego leads.",
+      "keywords_reversed": [
+        "reconciliation",
+        "accountability",
+        "de-escalation",
+        "regret"
+      ],
+      "meaning_reversed": "Pulling back from pointless conflict. Making amends, owning harm, or choosing peace over pride.",
+      "image": "/cards-svg/54.svg"
+    },
+    {
+      "id": 55,
+      "name": "Six of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "six",
+      "keywords": [
+        "transition",
+        "healing",
+        "moving on",
+        "distance"
+      ],
+      "meaning": "Leaving turbulence behind. A gradual transition toward calmer waters and clearer thinking.",
+      "keywords_reversed": [
+        "stuck",
+        "baggage",
+        "relapse",
+        "resistance to change"
+      ],
+      "meaning_reversed": "Movement is blocked or the past comes along unprocessed. You\u2019re trying to move on without closure.",
+      "image": "/cards-svg/55.svg"
+    },
+    {
+      "id": 56,
+      "name": "Seven of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "seven",
+      "keywords": [
+        "strategy",
+        "secrecy",
+        "avoidance",
+        "solo move"
+      ],
+      "meaning": "A strategic or discreet approach. Sometimes cleverness helps; sometimes it signals avoidance or deception.",
+      "keywords_reversed": [
+        "exposure",
+        "confession",
+        "accountability",
+        "sloppy tactics"
+      ],
+      "meaning_reversed": "What\u2019s hidden surfaces. Dishonesty backfires, or you choose honesty and responsibility over evasion.",
+      "image": "/cards-svg/56.svg"
+    },
+    {
+      "id": 57,
+      "name": "Eight of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "eight",
+      "keywords": [
+        "restriction",
+        "fear",
+        "self-doubt",
+        "mental trap"
+      ],
+      "meaning": "Feeling trapped by thoughts and fear. The cage is real emotionally, but the exit often exists.",
+      "keywords_reversed": [
+        "release",
+        "empowerment",
+        "perspective shift",
+        "freedom"
+      ],
+      "meaning_reversed": "A way out appears. You loosen the bind by changing the story, asking for help, and taking one brave step.",
+      "image": "/cards-svg/57.svg"
+    },
+    {
+      "id": 58,
+      "name": "Nine of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "nine",
+      "keywords": [
+        "anxiety",
+        "rumination",
+        "guilt",
+        "sleeplessness"
+      ],
+      "meaning": "Mental anguish and spiraling thoughts. Worry magnifies; compassion and reality checks are needed.",
+      "keywords_reversed": [
+        "relief",
+        "recovery",
+        "support",
+        "less rumination"
+      ],
+      "meaning_reversed": "The spiral slows. You reach for support, reframe guilt, and reclaim sleep and steadiness.",
+      "image": "/cards-svg/58.svg"
+    },
+    {
+      "id": 59,
+      "name": "Ten of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "ten",
+      "keywords": [
+        "ending",
+        "collapse",
+        "finality",
+        "rock bottom"
+      ],
+      "meaning": "A painful ending and clear finality. Something is done\u2014acknowledge it, then prepare for renewal.",
+      "keywords_reversed": [
+        "recovery",
+        "survival",
+        "resurrection",
+        "lessening pain"
+      ],
+      "meaning_reversed": "The worst is passing. Healing begins, and you start rebuilding from a hard but honest ending.",
+      "image": "/cards-svg/59.svg"
+    },
+    {
+      "id": 60,
+      "name": "Page of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "page",
+      "keywords": [
+        "curiosity",
+        "truth-seeking",
+        "messages",
+        "alertness"
+      ],
+      "meaning": "A sharp mind and appetite for truth. Learning fast, asking questions, and noticing what others miss.",
+      "keywords_reversed": [
+        "gossip",
+        "immaturity",
+        "half-truths",
+        "defensiveness"
+      ],
+      "meaning_reversed": "Information is misused or misunderstood. Reactivity, gossip, or fragile ego turns inquiry into conflict.",
+      "image": "/cards-svg/60.svg"
+    },
+    {
+      "id": 61,
+      "name": "Knight of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "knight",
+      "keywords": [
+        "directness",
+        "speed",
+        "ambition",
+        "bold speech"
+      ],
+      "meaning": "Charging ahead with conviction. Clear, fast action and strong opinions\u2014best when paired with restraint.",
+      "keywords_reversed": [
+        "rashness",
+        "argumentative",
+        "tunnel vision",
+        "reckless words"
+      ],
+      "meaning_reversed": "Too fast, too sharp. Words cut, nuance disappears, and conflict escalates from impatience or certainty.",
+      "image": "/cards-svg/61.svg"
+    },
+    {
+      "id": 62,
+      "name": "Queen of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "queen",
+      "keywords": [
+        "discernment",
+        "truth",
+        "independence",
+        "clear boundaries"
+      ],
+      "meaning": "Clear thinking and honest speech. Seeing patterns, setting boundaries, and choosing what\u2019s rational and fair.",
+      "keywords_reversed": [
+        "coldness",
+        "cynicism",
+        "harsh judgment",
+        "bitterness"
+      ],
+      "meaning_reversed": "Truth becomes a weapon. Detachment, cynicism, or unresolved hurt makes the mind sharp but unforgiving.",
+      "image": "/cards-svg/62.svg"
+    },
+    {
+      "id": 63,
+      "name": "King of Swords",
+      "arcana": "minor",
+      "suit": "swords",
+      "rank": "king",
+      "keywords": [
+        "authority",
+        "logic",
+        "strategy",
+        "ethics"
+      ],
+      "meaning": "Mental mastery and principled decision-making. Leading with logic, fairness, and long-term strategy.",
+      "keywords_reversed": [
+        "tyranny",
+        "rigidity",
+        "cold logic",
+        "abuse of power"
+      ],
+      "meaning_reversed": "Rules without humanity. Overcontrol, arrogance, or using intellect to dominate rather than serve truth.",
+      "image": "/cards-svg/63.svg"
+    },
+    {
+      "id": 64,
+      "name": "Ace of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "ace",
+      "keywords": [
+        "opportunity",
+        "stability",
+        "resources",
+        "seed"
+      ],
+      "meaning": "A tangible new opportunity. A seed for security\u2014money, work, health, or a practical foundation.",
+      "keywords_reversed": [
+        "missed chance",
+        "instability",
+        "poor planning",
+        "delay"
+      ],
+      "meaning_reversed": "A practical start is blocked or mishandled. Delays, weak planning, or not valuing the opportunity.",
+      "image": "/cards-svg/64.svg"
+    },
+    {
+      "id": 65,
+      "name": "Two of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "two",
+      "keywords": [
+        "juggling",
+        "adaptability",
+        "priorities",
+        "flow"
+      ],
+      "meaning": "Managing multiple demands with flexibility. Balance through rhythm, not perfection.",
+      "keywords_reversed": [
+        "overwhelm",
+        "poor balance",
+        "chaos",
+        "dropping balls"
+      ],
+      "meaning_reversed": "Too much to juggle. Priorities blur; something needs simplifying, delegating, or choosing.",
+      "image": "/cards-svg/65.svg"
+    },
+    {
+      "id": 66,
+      "name": "Three of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "three",
+      "keywords": [
+        "collaboration",
+        "craft",
+        "learning",
+        "teamwork"
+      ],
+      "meaning": "Building quality through cooperation and skill. Shared standards, mentorship, and real progress.",
+      "keywords_reversed": [
+        "misalignment",
+        "poor teamwork",
+        "low standards",
+        "ego"
+      ],
+      "meaning_reversed": "Collaboration breaks down. Conflicting expectations or ego undermines the work and the shared goal.",
+      "image": "/cards-svg/66.svg"
+    },
+    {
+      "id": 67,
+      "name": "Four of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "four",
+      "keywords": [
+        "security",
+        "saving",
+        "control",
+        "holding on"
+      ],
+      "meaning": "Protecting resources and maintaining stability. Healthy boundaries around time, money, and energy.",
+      "keywords_reversed": [
+        "greed",
+        "fear",
+        "letting go",
+        "instability"
+      ],
+      "meaning_reversed": "Clinging too tightly or losing grip. Fear drives scarcity behavior, or spending/structure becomes sloppy.",
+      "image": "/cards-svg/67.svg"
+    },
+    {
+      "id": 68,
+      "name": "Five of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "five",
+      "keywords": [
+        "hardship",
+        "scarcity",
+        "exclusion",
+        "worry"
+      ],
+      "meaning": "Material or emotional strain. Feeling left out, unsupported, or anxious about stability\u2014seek help and reality-check scarcity.",
+      "keywords_reversed": [
+        "recovery",
+        "support",
+        "improvement",
+        "rebuilding"
+      ],
+      "meaning_reversed": "A way through appears: support, resources, or renewed hope. Steady steps out of hardship.",
+      "image": "/cards-svg/68.svg"
+    },
+    {
+      "id": 69,
+      "name": "Six of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "six",
+      "keywords": [
+        "generosity",
+        "exchange",
+        "fairness",
+        "aid"
+      ],
+      "meaning": "Balanced giving and receiving. Support, fairness, and healthy exchange of resources and care.",
+      "keywords_reversed": [
+        "strings attached",
+        "imbalance",
+        "debt",
+        "exploitation"
+      ],
+      "meaning_reversed": "Giving becomes control, or receiving becomes dependence. Unequal exchange needs honest renegotiation.",
+      "image": "/cards-svg/69.svg"
+    },
+    {
+      "id": 70,
+      "name": "Seven of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "seven",
+      "keywords": [
+        "patience",
+        "assessment",
+        "investment",
+        "growth"
+      ],
+      "meaning": "Long-term effort and evaluation. Checking progress, refining the plan, and letting results ripen.",
+      "keywords_reversed": [
+        "impatience",
+        "poor return",
+        "burnout",
+        "misplaced effort"
+      ],
+      "meaning_reversed": "Effort isn\u2019t matching results. Rethink where you invest time and energy; cut what isn\u2019t growing.",
+      "image": "/cards-svg/70.svg"
+    },
+    {
+      "id": 71,
+      "name": "Eight of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "eight",
+      "keywords": [
+        "practice",
+        "skill",
+        "discipline",
+        "craftsmanship"
+      ],
+      "meaning": "Improvement through repetition and care. Doing the work, refining technique, and building mastery.",
+      "keywords_reversed": [
+        "perfectionism",
+        "boredom",
+        "shortcuts",
+        "low quality"
+      ],
+      "meaning_reversed": "Going through the motions or cutting corners. Motivation fades, or standards slip from impatience.",
+      "image": "/cards-svg/71.svg"
+    },
+    {
+      "id": 72,
+      "name": "Nine of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "nine",
+      "keywords": [
+        "independence",
+        "self-worth",
+        "comfort",
+        "refinement"
+      ],
+      "meaning": "Enjoying what you\u2019ve built. Confidence, stability, and pleasure earned through consistent effort.",
+      "keywords_reversed": [
+        "dependence",
+        "loneliness",
+        "status seeking",
+        "insecurity"
+      ],
+      "meaning_reversed": "Security feels fragile or lonely. Worth is outsourced to status, or independence becomes isolation.",
+      "image": "/cards-svg/72.svg"
+    },
+    {
+      "id": 73,
+      "name": "Ten of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "ten",
+      "keywords": [
+        "legacy",
+        "family",
+        "wealth",
+        "long-term stability"
+      ],
+      "meaning": "Lasting foundations\u2014family, wealth, community, and traditions that endure. Building beyond the self.",
+      "keywords_reversed": [
+        "instability",
+        "family conflict",
+        "short-term thinking",
+        "fragile legacy"
+      ],
+      "meaning_reversed": "Foundations wobble: family tension, financial strain, or values misaligned. Long-term planning is missing.",
+      "image": "/cards-svg/73.svg"
+    },
+    {
+      "id": 74,
+      "name": "Page of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "page",
+      "keywords": [
+        "learning",
+        "opportunity",
+        "study",
+        "new job"
+      ],
+      "meaning": "A practical beginning\u2014study, training, or a small opportunity that can grow with effort.",
+      "keywords_reversed": [
+        "procrastination",
+        "lack of focus",
+        "missed lesson",
+        "unrealistic plan"
+      ],
+      "meaning_reversed": "The start is delayed by distraction or poor planning. A reminder to ground the goal in real steps.",
+      "image": "/cards-svg/74.svg"
+    },
+    {
+      "id": 75,
+      "name": "Knight of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "knight",
+      "keywords": [
+        "consistency",
+        "work ethic",
+        "reliability",
+        "routine"
+      ],
+      "meaning": "Slow, steady progress. Showing up, doing the work, and building real results over time.",
+      "keywords_reversed": [
+        "stagnation",
+        "stubbornness",
+        "boredom",
+        "workaholism"
+      ],
+      "meaning_reversed": "Routine becomes a rut. Resistance to change, lack of momentum, or overwork without purpose.",
+      "image": "/cards-svg/75.svg"
+    },
+    {
+      "id": 76,
+      "name": "Queen of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "queen",
+      "keywords": [
+        "nurturing",
+        "practicality",
+        "comfort",
+        "resourcefulness"
+      ],
+      "meaning": "Grounded care and practical abundance. Creating stability through smart choices and steady support.",
+      "keywords_reversed": [
+        "self-neglect",
+        "overgiving",
+        "material anxiety",
+        "imbalance"
+      ],
+      "meaning_reversed": "Care drains you or turns controlling. Stress around money/home, or neglecting your own needs.",
+      "image": "/cards-svg/76.svg"
+    },
+    {
+      "id": 77,
+      "name": "King of Pentacles",
+      "arcana": "minor",
+      "suit": "pentacles",
+      "rank": "king",
+      "keywords": [
+        "stability",
+        "success",
+        "provider",
+        "stewardship"
+      ],
+      "meaning": "Material mastery and wise stewardship. Building sustainable success and providing through reliability and ethics.",
+      "keywords_reversed": [
+        "greed",
+        "rigidity",
+        "corruption",
+        "status obsession"
+      ],
+      "meaning_reversed": "Success becomes possessive or ethically thin. Fear of loss, vanity, or control undermines true stability.",
+      "image": "/cards-svg/77.svg"
+    }
+  ]
+}
