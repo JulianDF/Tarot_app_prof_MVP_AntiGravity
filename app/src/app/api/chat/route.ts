@@ -2,16 +2,16 @@
  * Chat API — Streaming chat endpoint with tool orchestration
  * 
  * Implements the dual-model architecture from spec/ai-architecture.md:
- * - Conversation model (GPT 5.2 mini) for fast responses and tool calls
- * - Thinking model for deep interpretations (via request_interpretation tool)
+ * - Conversation model (Claude Haiku 4.5) for fast responses and tool calls
+ * - Thinking model (GPT 5.2) for deep interpretations (via request_interpretation tool)
  */
 
 import { NextRequest } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import { MINI_SYSTEM_PROMPT } from '@/prompts/mini-system';
 import { ChatRequest, SpreadWithCards, SpreadLedgerEntry } from '@/types';
 import {
-    TOOL_DEFINITIONS,
     executeListSpreads,
     executeDrawCards,
     formatSpreadForAI,
@@ -23,12 +23,65 @@ import { getAllCards } from '@/services/cardService';
 import * as logger from '@/lib/chatLogger';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OpenAI Client
+// Clients
 // ─────────────────────────────────────────────────────────────────────────────
 
+const anthropic = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// Keep OpenAI for thinking model
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Claude Tool Definitions
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CLAUDE_TOOLS: Anthropic.Tool[] = [
+    {
+        name: 'list_spreads',
+        description: 'List available spreads with their purpose and position meanings. Use this to choose an appropriate spread for the user\'s question.',
+        input_schema: {
+            type: 'object',
+            properties: {},
+            required: [],
+        },
+    },
+    {
+        name: 'draw_cards',
+        description: 'Lay a spread by drawing cards. For built-in spreads, provide spread_slug. For custom spreads, provide custom_positions array.',
+        input_schema: {
+            type: 'object',
+            properties: {
+                spread_slug: {
+                    type: 'string',
+                    description: 'Slug of built-in spread (e.g., \'diamond_spread\', \'two_paths\', \'energy_mix\', \'blockage\')',
+                },
+                custom_positions: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'For custom spreads: array of position meanings',
+                },
+                question: {
+                    type: 'string',
+                    description: 'The user\'s question for this reading',
+                },
+            },
+            required: ['question'],
+        },
+    },
+    {
+        name: 'request_interpretation',
+        description: 'Hand off to deeper intelligence for interpretation or complex reasoning. Once called, thinking will respond directly to the user and your turn ends. Call this after laying a spread, or when the user asks a complex question that benefits from deeper analysis.',
+        input_schema: {
+            type: 'object',
+            properties: {},
+            required: [],
+        },
+    },
+];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SSE Helpers
@@ -68,10 +121,10 @@ function createSSEStream() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
-    // Validate API key
-    if (!process.env.OPENAI_API_KEY) {
+    // Validate API keys
+    if (!process.env.ANTHROPIC_API_KEY) {
         return new Response(
-            JSON.stringify({ error: 'OpenAI API key not configured' }),
+            JSON.stringify({ error: 'Anthropic API key not configured' }),
             { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
     }
@@ -111,10 +164,10 @@ export async function POST(request: NextRequest) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Chat Processing
+// Chat Processing with Claude
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
+type ClaudeMessage = Anthropic.MessageParam;
 
 async function processChat(
     messages: Array<{ role: 'user' | 'assistant'; content: string }>,
@@ -161,11 +214,11 @@ async function processChat(
             systemContent += '\n\n---\n\n' + formatLedgerForAI(spreadLedger);
         }
 
-        // Build conversation history for OpenAI
-        const openaiMessages: ChatCompletionMessageParam[] = [
-            { role: 'system', content: systemContent },
-            ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
-        ];
+        // Build conversation history for Claude
+        const claudeMessages: ClaudeMessage[] = messages.map(m => ({
+            role: m.role,
+            content: m.content,
+        }));
 
         // State for tool loop
         let currentActiveSpread = activeSpread;
@@ -176,135 +229,107 @@ async function processChat(
         // Tool execution loop
         while (toolIterations < maxToolIterations) {
             toolIterations++;
-            const iterationStart = Date.now();
             logger.logMiniCall(`Iteration ${toolIterations}`);
 
-            // Log context sent to mini (first iteration only to avoid spam)
+            // Log context sent to Claude (first iteration only)
             if (toolIterations === 1) {
-                logger.logModelContext('mini', {
+                logger.logModelContext('claude-haiku', {
                     systemPrompt: systemContent,
-                    messages: openaiMessages,
+                    messages: claudeMessages,
                     conversationSummary,
                     ledger: currentLedger,
                 });
             }
 
-            // Call OpenAI with streaming
             const apiCallStart = Date.now();
+            console.log(`\n[API CALL - CLAUDE HAIKU 4.5 - Iteration ${toolIterations}]`);
 
-            // Log the FULL API call payload
-            const apiPayload = {
-                model: 'gpt-4o-mini',
-                messages: openaiMessages,
-                tools: TOOL_DEFINITIONS.map(t => t.function.name), // Just names for brevity
-                tool_choice: 'auto',
+            // Call Claude with streaming
+            const stream = anthropic.messages.stream({
+                model: 'claude-haiku-4-5-20251001',
                 max_tokens: 2000,
-            };
-            console.log(`\n[API CALL - MINI - Iteration ${toolIterations}]`);
-            console.log(JSON.stringify(apiPayload, null, 2));
-
-            const response = await openai.chat.completions.create({
-                model: 'gpt-4o-mini',
-                messages: openaiMessages,
-                tools: TOOL_DEFINITIONS,
-                tool_choice: 'auto',
-                stream: true,
-                max_tokens: 2000,
+                system: systemContent,
+                messages: claudeMessages,
+                tools: CLAUDE_TOOLS,
             });
 
             // Accumulate the response
             let assistantContent = '';
-            let toolCalls: Array<{
+            let toolUseBlocks: Array<{
                 id: string;
                 name: string;
-                arguments: string;
+                input: Record<string, unknown>;
             }> = [];
-            let currentToolIndex = -1;
             let firstTokenTime: number | null = null;
 
-            for await (const chunk of response) {
+            // Process the stream
+            for await (const event of stream) {
                 // Log time to first token
-                if (firstTokenTime === null) {
+                if (firstTokenTime === null && event.type === 'content_block_start') {
                     firstTokenTime = Date.now();
                     const ttft = firstTokenTime - apiCallStart;
-                    console.log(`[TIMING] Model: gpt-4o-mini | Time to first token: ${ttft}ms`);
+                    console.log(`[TIMING] Model: claude-haiku-4-5 | Time to first token: ${ttft}ms`);
                 }
-
-                const delta = chunk.choices[0]?.delta;
 
                 // Handle text content
-                if (delta?.content) {
-                    assistantContent += delta.content;
-                    send({ type: 'text', content: delta.content });
+                if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+                    assistantContent += event.delta.text;
+                    send({ type: 'text', content: event.delta.text });
                 }
 
-                // Handle tool calls
-                if (delta?.tool_calls) {
-                    for (const tc of delta.tool_calls) {
-                        if (tc.index !== undefined) {
-                            if (tc.index !== currentToolIndex) {
-                                currentToolIndex = tc.index;
-                                toolCalls[tc.index] = {
-                                    id: tc.id || '',
-                                    name: tc.function?.name || '',
-                                    arguments: tc.function?.arguments || '',
-                                };
-                            } else {
-                                // Append to existing tool call (arguments come in chunks)
-                                if (tc.id && !toolCalls[tc.index].id) toolCalls[tc.index].id = tc.id;
-                                if (tc.function?.name && !toolCalls[tc.index].name) toolCalls[tc.index].name = tc.function.name;
-                                if (tc.function?.arguments) toolCalls[tc.index].arguments += tc.function.arguments;
-                            }
+                // Handle tool use blocks from final message
+                if (event.type === 'message_stop') {
+                    const finalMessage = await stream.finalMessage();
+                    for (const block of finalMessage.content) {
+                        if (block.type === 'tool_use') {
+                            toolUseBlocks.push({
+                                id: block.id,
+                                name: block.name,
+                                input: block.input as Record<string, unknown>,
+                            });
                         }
                     }
                 }
             }
 
             // If no tool calls, model decided to respond directly
-            if (toolCalls.length === 0) {
+            if (toolUseBlocks.length === 0) {
                 logger.logDecision('direct_response');
                 logger.logMiniTextGeneration(assistantContent.length);
                 break;
             }
 
             // Log tool call decisions
-            for (const tc of toolCalls) {
+            for (const tc of toolUseBlocks) {
                 logger.logDecision('tool_call', tc.name);
                 totalToolCalls++;
             }
 
-            // Add assistant message with tool calls to history
-            openaiMessages.push({
+            // Add assistant message with tool use to history
+            const assistantMessage: ClaudeMessage = {
                 role: 'assistant',
-                content: assistantContent || null,
-                tool_calls: toolCalls.map(tc => ({
-                    id: tc.id,
-                    type: 'function' as const,
-                    function: { name: tc.name, arguments: tc.arguments },
-                })),
-            });
+                content: (await stream.finalMessage()).content,
+            };
+            claudeMessages.push(assistantMessage);
 
-            // Execute each tool call
-            // Track if we've already called request_interpretation to prevent duplicates
+            // Execute each tool call and collect results
+            const toolResults: Array<{ type: 'tool_result'; tool_use_id: string; content: string }> = [];
             let hasCalledInterpretation = false;
 
-            for (const toolCall of toolCalls) {
-                const parsedArgs = JSON.parse(toolCall.arguments || '{}');
-                logger.logToolCall(toolCall.name, parsedArgs);
+            for (const toolUse of toolUseBlocks) {
+                logger.logToolCall(toolUse.name, toolUse.input);
 
                 send({
                     type: 'tool_call',
-                    id: toolCall.id,
-                    name: toolCall.name,
-                    arguments: parsedArgs
+                    id: toolUse.id,
+                    name: toolUse.name,
+                    arguments: toolUse.input,
                 });
 
                 let toolResult: string;
 
                 try {
-                    const args = parsedArgs;
-
-                    switch (toolCall.name) {
+                    switch (toolUse.name) {
                         case 'list_spreads': {
                             const result = executeListSpreads();
                             toolResult = JSON.stringify(result, null, 2);
@@ -313,19 +338,21 @@ async function processChat(
                         }
 
                         case 'draw_cards': {
+                            const args = toolUse.input as {
+                                spread_slug?: string;
+                                custom_positions?: string[];
+                                question: string;
+                            };
                             const result = await executeDrawCards(args);
                             if (result.success && result.reading && result.spreadWithCards) {
-                                // Update active spread
                                 currentActiveSpread = result.spreadWithCards;
 
-                                // Send spread_laid event to client (include spreadWithCards for card names)
                                 send({
                                     type: 'spread_laid',
                                     reading: result.reading,
-                                    spreadWithCards: result.spreadWithCards
+                                    spreadWithCards: result.spreadWithCards,
                                 });
 
-                                // Format result for AI
                                 toolResult = formatSpreadForAI(result.spreadWithCards);
                                 logger.logToolResult('draw_cards', true, `${result.spreadWithCards.cards.length} cards drawn`);
                             } else {
@@ -336,9 +363,9 @@ async function processChat(
                         }
 
                         case 'request_interpretation': {
-                            // Prevent duplicate interpretation calls in same turn
+                            // Prevent duplicate interpretation calls
                             if (hasCalledInterpretation) {
-                                toolResult = 'SYSTEM: Interpretation already provided. Do not call this again.';
+                                toolResult = 'Interpretation already provided.';
                                 logger.logToolResult('request_interpretation', false, 'Duplicate call blocked');
                                 break;
                             }
@@ -360,12 +387,9 @@ async function processChat(
 
                                 const context: InterpretationContext = {
                                     activeSpread: currentActiveSpread,
-                                    // Pass the same messages array that mini receives
-                                    // This ensures thinking sees the exact same conversation context
                                     messages: messages.slice(-20),
                                     spreadLedger: currentLedger,
                                     conversationSummary,
-                                    focusArea: args.focus_area,
                                 };
 
                                 let interpretation = '';
@@ -395,33 +419,40 @@ async function processChat(
                                     currentLedger = [...currentLedger, createLedgerEntry(reading, allCards)];
                                 }
 
-                                // Add spacing before mini's closing message
-                                send({ type: 'text', content: '\n\n' });
-
-                                toolResult = `SYSTEM: You have just shared a complete interpretation with the user. Now briefly invite them to share their thoughts or ask questions. Speak warmly and directly to them. Do NOT summarize or repeat the interpretation.`;
                                 logger.logToolResult('request_interpretation', true, `${interpretation.length} chars from thinking`);
+
+                                // THINKING TAKES OVER - End the turn completely
+                                send({ type: 'done' });
+                                logger.logSessionEnd(totalToolCalls, thinkingCalls);
+                                close();
+                                return;
                             }
                             break;
                         }
 
                         default:
-                            toolResult = `Unknown tool: ${toolCall.name}`;
-                            logger.logToolResult(toolCall.name, false, 'Unknown tool');
+                            toolResult = `Unknown tool: ${toolUse.name}`;
+                            logger.logToolResult(toolUse.name, false, 'Unknown tool');
                     }
                 } catch (error) {
                     toolResult = `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-                    logger.logError(`tool:${toolCall.name}`, error);
+                    logger.logError(`tool:${toolUse.name}`, error);
                 }
 
-                send({ type: 'tool_result', name: toolCall.name, result: toolResult });
+                send({ type: 'tool_result', name: toolUse.name, result: toolResult });
 
-                // Add tool result to history
-                openaiMessages.push({
-                    role: 'tool',
-                    tool_call_id: toolCall.id,
+                toolResults.push({
+                    type: 'tool_result',
+                    tool_use_id: toolUse.id,
                     content: toolResult,
                 });
             }
+
+            // Add tool results to conversation
+            claudeMessages.push({
+                role: 'user',
+                content: toolResults,
+            });
         }
 
         send({ type: 'done' });
@@ -431,7 +462,7 @@ async function processChat(
         logger.logError('processChat', error);
         send({
             type: 'error',
-            message: error instanceof Error ? error.message : 'Chat processing failed'
+            message: error instanceof Error ? error.message : 'Chat processing failed',
         });
     } finally {
         close();

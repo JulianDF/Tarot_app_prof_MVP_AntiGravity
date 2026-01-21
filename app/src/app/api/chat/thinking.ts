@@ -23,7 +23,6 @@ export interface InterpretationContext {
     messages: Array<{ role: 'user' | 'assistant'; content: string }>;
     spreadLedger?: SpreadLedgerEntry[];
     conversationSummary?: string;
-    focusArea?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -39,7 +38,7 @@ const openai = new OpenAI({
  * Uses the SAME structure as mini's system content
  */
 function buildThinkingSystemContent(context: InterpretationContext): string {
-    const { activeSpread, spreadLedger, conversationSummary, focusArea } = context;
+    const { activeSpread, spreadLedger, conversationSummary } = context;
 
     let systemContent = THINKING_SYSTEM_PROMPT;
 
@@ -54,11 +53,6 @@ function buildThinkingSystemContent(context: InterpretationContext): string {
     // Add spread ledger if present
     if (spreadLedger && spreadLedger.length > 0) {
         systemContent += '\n\n---\n\n' + formatLedgerForAI(spreadLedger);
-    }
-
-    // Add focus area if specified
-    if (focusArea) {
-        systemContent += `\n\n---\n\n## Focus Area\nPlease pay special attention to: ${focusArea}`;
     }
 
     return systemContent;

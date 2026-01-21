@@ -66,15 +66,10 @@ export const TOOL_DEFINITIONS = [
         type: 'function' as const,
         function: {
             name: 'request_interpretation',
-            description: 'Request a deep interpretation of the current spread. Call after laying a spread. The interpretation will flow through you seamlessly.',
+            description: 'Hand off to deeper intelligence for interpretation or complex reasoning. Once called, thinking will respond directly to the user and your turn ends. Call this after laying a spread, or when the user asks a complex question that benefits from deeper analysis.',
             parameters: {
                 type: 'object',
-                properties: {
-                    focus_area: {
-                        type: 'string',
-                        description: 'Optional: specific card or aspect to emphasize',
-                    },
-                },
+                properties: {},
                 required: [],
             },
         },
@@ -106,10 +101,6 @@ export interface DrawCardsResult {
     reading?: Reading;
     spreadWithCards?: SpreadWithCards;
     error?: string;
-}
-
-export interface RequestInterpretationArgs {
-    focus_area?: string;
 }
 
 /**

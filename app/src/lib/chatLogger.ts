@@ -132,7 +132,7 @@ const CONTEXT_LOG_FILE = path.join(LOG_DIR, 'context.log');
 /**
  * Log the full context sent to a model (for debugging)
  */
-export function logModelContext(model: 'mini' | 'thinking', context: {
+export function logModelContext(model: 'mini' | 'thinking' | 'claude-haiku', context: {
     systemPrompt?: string;
     messages?: unknown[];
     conversationSummary?: string;
