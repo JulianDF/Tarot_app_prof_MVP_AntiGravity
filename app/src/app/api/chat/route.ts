@@ -20,6 +20,7 @@ import {
 } from './tools';
 import { requestThinkingInterpretation, InterpretationContext } from './thinking';
 import { getAllCards } from '@/services/cardService';
+import * as logger from '@/lib/chatLogger';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OpenAI Client
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const { messages, activeSpread, spreadLedger } = body;
+    const { messages, activeSpread, spreadLedger, conversationSummary } = body;
 
     if (!messages || messages.length === 0) {
         return new Response(
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     const { stream, send, close } = createSSEStream();
 
     // Process chat in background
-    processChat(messages, activeSpread, spreadLedger, send, close);
+    processChat(messages, activeSpread, spreadLedger, conversationSummary, send, close);
 
     return new Response(stream, {
         headers: {
@@ -119,12 +120,36 @@ async function processChat(
     messages: Array<{ role: 'user' | 'assistant'; content: string }>,
     activeSpread: SpreadWithCards | undefined,
     spreadLedger: SpreadLedgerEntry[] | undefined,
+    conversationSummary: string | undefined,
     send: (event: Record<string, unknown>) => void,
     close: () => void
 ) {
+    const sessionId = Date.now().toString(36);
+    let totalToolCalls = 0;
+    let thinkingCalls = 0;
+
     try {
+        // Log session start
+        logger.logSessionStart(sessionId, messages.length);
+        logger.logContext(
+            activeSpread?.spread.name || null,
+            spreadLedger?.length || 0,
+            messages.length > 1
+        );
+
+        // Log user message (last one)
+        const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+        if (lastUserMsg) {
+            logger.logUserMessage(lastUserMsg.content);
+        }
+
         // Build system message with context
         let systemContent = MINI_SYSTEM_PROMPT;
+
+        // Add conversation summary if present (compressed older messages)
+        if (conversationSummary) {
+            systemContent += '\n\n---\n\n## Summary of Earlier Conversation\n' + conversationSummary;
+        }
 
         // Add active spread context if present
         if (activeSpread) {
@@ -151,8 +176,33 @@ async function processChat(
         // Tool execution loop
         while (toolIterations < maxToolIterations) {
             toolIterations++;
+            const iterationStart = Date.now();
+            logger.logMiniCall(`Iteration ${toolIterations}`);
+
+            // Log context sent to mini (first iteration only to avoid spam)
+            if (toolIterations === 1) {
+                logger.logModelContext('mini', {
+                    systemPrompt: systemContent,
+                    messages: openaiMessages,
+                    conversationSummary,
+                    ledger: currentLedger,
+                });
+            }
 
             // Call OpenAI with streaming
+            const apiCallStart = Date.now();
+
+            // Log the FULL API call payload
+            const apiPayload = {
+                model: 'gpt-4o-mini',
+                messages: openaiMessages,
+                tools: TOOL_DEFINITIONS.map(t => t.function.name), // Just names for brevity
+                tool_choice: 'auto',
+                max_tokens: 2000,
+            };
+            console.log(`\n[API CALL - MINI - Iteration ${toolIterations}]`);
+            console.log(JSON.stringify(apiPayload, null, 2));
+
             const response = await openai.chat.completions.create({
                 model: 'gpt-4o-mini',
                 messages: openaiMessages,
@@ -170,8 +220,16 @@ async function processChat(
                 arguments: string;
             }> = [];
             let currentToolIndex = -1;
+            let firstTokenTime: number | null = null;
 
             for await (const chunk of response) {
+                // Log time to first token
+                if (firstTokenTime === null) {
+                    firstTokenTime = Date.now();
+                    const ttft = firstTokenTime - apiCallStart;
+                    console.log(`[TIMING] Model: gpt-4o-mini | Time to first token: ${ttft}ms`);
+                }
+
                 const delta = chunk.choices[0]?.delta;
 
                 // Handle text content
@@ -202,9 +260,17 @@ async function processChat(
                 }
             }
 
-            // If no tool calls, we're done
+            // If no tool calls, model decided to respond directly
             if (toolCalls.length === 0) {
+                logger.logDecision('direct_response');
+                logger.logMiniTextGeneration(assistantContent.length);
                 break;
+            }
+
+            // Log tool call decisions
+            for (const tc of toolCalls) {
+                logger.logDecision('tool_call', tc.name);
+                totalToolCalls++;
             }
 
             // Add assistant message with tool calls to history
@@ -219,23 +285,30 @@ async function processChat(
             });
 
             // Execute each tool call
+            // Track if we've already called request_interpretation to prevent duplicates
+            let hasCalledInterpretation = false;
+
             for (const toolCall of toolCalls) {
+                const parsedArgs = JSON.parse(toolCall.arguments || '{}');
+                logger.logToolCall(toolCall.name, parsedArgs);
+
                 send({
                     type: 'tool_call',
                     id: toolCall.id,
                     name: toolCall.name,
-                    arguments: JSON.parse(toolCall.arguments || '{}')
+                    arguments: parsedArgs
                 });
 
                 let toolResult: string;
 
                 try {
-                    const args = JSON.parse(toolCall.arguments || '{}');
+                    const args = parsedArgs;
 
                     switch (toolCall.name) {
                         case 'list_spreads': {
                             const result = executeListSpreads();
                             toolResult = JSON.stringify(result, null, 2);
+                            logger.logToolResult('list_spreads', true, `${result.spreads.length} spreads`);
                             break;
                         }
 
@@ -254,25 +327,44 @@ async function processChat(
 
                                 // Format result for AI
                                 toolResult = formatSpreadForAI(result.spreadWithCards);
+                                logger.logToolResult('draw_cards', true, `${result.spreadWithCards.cards.length} cards drawn`);
                             } else {
                                 toolResult = JSON.stringify({ error: result.error });
+                                logger.logToolResult('draw_cards', false, result.error || 'Unknown error');
                             }
                             break;
                         }
 
                         case 'request_interpretation': {
+                            // Prevent duplicate interpretation calls in same turn
+                            if (hasCalledInterpretation) {
+                                toolResult = 'SYSTEM: Interpretation already provided. Do not call this again.';
+                                logger.logToolResult('request_interpretation', false, 'Duplicate call blocked');
+                                break;
+                            }
+                            hasCalledInterpretation = true;
+
                             if (!currentActiveSpread) {
                                 toolResult = 'Error: No spread has been laid yet. Please draw cards first.';
+                                logger.logToolResult('request_interpretation', false, 'No active spread');
                             } else {
+                                // Log thinking handoff
+                                thinkingCalls++;
+                                logger.logThinkingHandoff(
+                                    currentActiveSpread.spread.name,
+                                    currentActiveSpread.question
+                                );
+
                                 // Stream interpretation from thinking model
                                 send({ type: 'text', content: '\n\n' });
 
                                 const context: InterpretationContext = {
                                     activeSpread: currentActiveSpread,
-                                    conversationContext: messages.slice(-6).map(m =>
-                                        `${m.role === 'user' ? 'User' : 'Reader'}: ${m.content}`
-                                    ).join('\n'),
+                                    // Pass the same messages array that mini receives
+                                    // This ensures thinking sees the exact same conversation context
+                                    messages: messages.slice(-20),
                                     spreadLedger: currentLedger,
+                                    conversationSummary,
                                     focusArea: args.focus_area,
                                 };
 
@@ -303,16 +395,22 @@ async function processChat(
                                     currentLedger = [...currentLedger, createLedgerEntry(reading, allCards)];
                                 }
 
-                                toolResult = `SYSTEM: The deep interpretation has been successfully streamed to the user. DO NOT generate your own interpretation or list the cards again. Just ask the user if they have any questions about the reading.`;
+                                // Add spacing before mini's closing message
+                                send({ type: 'text', content: '\n\n' });
+
+                                toolResult = `SYSTEM: You have just shared a complete interpretation with the user. Now briefly invite them to share their thoughts or ask questions. Speak warmly and directly to them. Do NOT summarize or repeat the interpretation.`;
+                                logger.logToolResult('request_interpretation', true, `${interpretation.length} chars from thinking`);
                             }
                             break;
                         }
 
                         default:
                             toolResult = `Unknown tool: ${toolCall.name}`;
+                            logger.logToolResult(toolCall.name, false, 'Unknown tool');
                     }
                 } catch (error) {
                     toolResult = `Tool error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+                    logger.logError(`tool:${toolCall.name}`, error);
                 }
 
                 send({ type: 'tool_result', name: toolCall.name, result: toolResult });
@@ -327,8 +425,10 @@ async function processChat(
         }
 
         send({ type: 'done' });
+        logger.logSessionEnd(totalToolCalls, thinkingCalls);
     } catch (error) {
         console.error('Chat processing error:', error);
+        logger.logError('processChat', error);
         send({
             type: 'error',
             message: error instanceof Error ? error.message : 'Chat processing failed'

@@ -1,15 +1,17 @@
 /**
- * Thinking Model Integration
+ * Thinking Model — Deep interpretation layer
  * 
- * Handles the handoff to the thinking model (GPT 5.2 Thinking) for deep
- * spread interpretation. The response is streamed back and integrated
- * into the mini model's output seamlessly.
+ * Called by mini (via request_interpretation tool) when:
+ * - A spread has been laid and needs interpretation
+ * - Complex synthesis across multiple spreads is needed
+ * 
+ * Receives the SAME context as mini to ensure conversation continuity.
  */
 
 import OpenAI from 'openai';
+import { SpreadWithCards, SpreadLedgerEntry } from '@/types';
+import { formatSpreadForAI, formatLedgerForAI } from './tools';
 import { THINKING_SYSTEM_PROMPT } from '@/prompts/thinking-system';
-import { SpreadWithCards, SpreadLedgerEntry, Card } from '@/types';
-import { formatLedgerForAI } from './tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -17,8 +19,10 @@ import { formatLedgerForAI } from './tools';
 
 export interface InterpretationContext {
     activeSpread: SpreadWithCards;
-    conversationContext: string;
+    // Messages array - same as what mini receives
+    messages: Array<{ role: 'user' | 'assistant'; content: string }>;
     spreadLedger?: SpreadLedgerEntry[];
+    conversationSummary?: string;
     focusArea?: string;
 }
 
@@ -31,90 +35,89 @@ const openai = new OpenAI({
 });
 
 /**
- * Build the interpretation prompt for the thinking model
+ * Build the system content for thinking model
+ * Uses the SAME structure as mini's system content
  */
-function buildInterpretationPrompt(context: InterpretationContext): string {
-    const { activeSpread, conversationContext, spreadLedger, focusArea } = context;
+function buildThinkingSystemContent(context: InterpretationContext): string {
+    const { activeSpread, spreadLedger, conversationSummary, focusArea } = context;
 
-    const lines: string[] = [];
+    let systemContent = THINKING_SYSTEM_PROMPT;
 
-    // Question
-    lines.push(`## Question`);
-    lines.push(activeSpread.question);
-    lines.push('');
-
-    // Conversation context (recent exchanges)
-    if (conversationContext) {
-        lines.push(`## Recent Conversation`);
-        lines.push(conversationContext);
-        lines.push('');
+    // Add conversation summary if present (compressed older messages)
+    if (conversationSummary) {
+        systemContent += '\n\n---\n\n## Summary of Earlier Conversation\n' + conversationSummary;
     }
 
-    // Spread information
-    lines.push(`## Spread: ${activeSpread.spread.name}`);
-    lines.push(`**Purpose:** ${activeSpread.spread.purpose}`);
-    lines.push('');
+    // Add active spread context (same as mini's formatSpreadForAI)
+    systemContent += '\n\n---\n\n' + formatSpreadForAI(activeSpread);
 
-    // Cards drawn with full details
-    lines.push(`## Cards Drawn`);
-    for (const { position_index, card, reversed } of activeSpread.cards) {
-        const position = activeSpread.spread.positions.find(p => p.index === position_index);
-        const orientation = reversed ? 'Reversed' : 'Upright';
-        const meaning = reversed ? card.meaning_reversed : card.meaning;
-        const keywords = reversed ? card.keywords_reversed : card.keywords;
-
-        lines.push(`### Position ${position_index + 1}: ${position?.meaning}`);
-        lines.push(`**Card:** ${card.name} (${orientation})`);
-        lines.push(`**Keywords:** ${keywords.join(', ')}`);
-        lines.push(`**Meaning:** ${meaning}`);
-        lines.push('');
-    }
-
-    // Past spreads in session
+    // Add spread ledger if present
     if (spreadLedger && spreadLedger.length > 0) {
-        lines.push(formatLedgerForAI(spreadLedger));
+        systemContent += '\n\n---\n\n' + formatLedgerForAI(spreadLedger);
     }
 
-    // Focus area if specified
+    // Add focus area if specified
     if (focusArea) {
-        lines.push(`## Focus Area`);
-        lines.push(`Please pay special attention to: ${focusArea}`);
-        lines.push('');
+        systemContent += `\n\n---\n\n## Focus Area\nPlease pay special attention to: ${focusArea}`;
     }
 
-    return lines.join('\n');
+    return systemContent;
 }
 
 /**
  * Request interpretation from the thinking model
  * Returns an async generator that yields text chunks
+ * 
+ * Now receives the SAME context structure as mini for continuity.
  */
 export async function* requestThinkingInterpretation(
     context: InterpretationContext
 ): AsyncGenerator<string, void, unknown> {
-    const prompt = buildInterpretationPrompt(context);
+    const systemContent = buildThinkingSystemContent(context);
+
+    // Build messages array - same format as mini
+    // System message with all context, then conversation history
+    const thinkingMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+        { role: 'system', content: systemContent },
+        ...context.messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+    ];
+
+    // Log context sent to thinking model
+    const { logModelContext } = await import('@/lib/chatLogger');
+    logModelContext('thinking', {
+        systemPrompt: systemContent,
+        messages: thinkingMessages,
+        conversationSummary: context.conversationSummary,
+        ledger: context.spreadLedger,
+    });
 
     try {
+        const apiCallStart = Date.now();
+
+        // Log the FULL API call payload
+        console.log(`\n[API CALL - THINKING]`);
+        console.log(JSON.stringify({
+            model: 'gpt-5.2',
+            messages: thinkingMessages,
+            max_completion_tokens: 2000,
+            temperature: 0.7,
+        }, null, 2));
+
         const stream = await openai.chat.completions.create({
-            // Use the best available reasoning model
-            // In production this would be gpt-5.2-thinking or similar
-            model: 'gpt-4o',
-            messages: [
-                {
-                    role: 'system',
-                    content: THINKING_SYSTEM_PROMPT,
-                },
-                {
-                    role: 'user',
-                    content: prompt,
-                },
-            ],
+            model: 'gpt-5.2',
+            messages: thinkingMessages,
             stream: true,
-            max_tokens: 2000,
+            max_completion_tokens: 2000,
             temperature: 0.7,
         });
 
+        let firstTokenLogged = false;
         for await (const chunk of stream) {
+            if (!firstTokenLogged) {
+                const ttft = Date.now() - apiCallStart;
+                console.log(`[TIMING] Model: gpt-5.2 | Time to first token: ${ttft}ms`);
+                firstTokenLogged = true;
+            }
             const content = chunk.choices[0]?.delta?.content;
             if (content) {
                 yield content;
@@ -128,28 +131,9 @@ export async function* requestThinkingInterpretation(
 
         for (const { position_index, card, reversed } of context.activeSpread.cards) {
             const position = context.activeSpread.spread.positions.find(p => p.index === position_index);
-            const orientation = reversed ? 'reversed' : 'upright';
+            const orientation = reversed ? 'Reversed' : 'Upright';
             const meaning = reversed ? card.meaning_reversed : card.meaning;
-
-            yield `**${card.name}** in the position of "${position?.meaning}" (${orientation}): ${meaning}\n\n`;
+            yield `**${position?.meaning}:** ${card.name} (${orientation}) — ${meaning}\n\n`;
         }
-
-        yield `\nLet these cards guide your reflection on your question about ${context.activeSpread.question.toLowerCase()}.`;
     }
-}
-
-/**
- * Get full interpretation as a single string (non-streaming)
- * Used for error recovery or simple cases
- */
-export async function getFullInterpretation(
-    context: InterpretationContext
-): Promise<string> {
-    const chunks: string[] = [];
-
-    for await (const chunk of requestThinkingInterpretation(context)) {
-        chunks.push(chunk);
-    }
-
-    return chunks.join('');
 }

@@ -1,0 +1,614 @@
+'use client';
+
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { useChatUI } from '@/contexts/ChatUIContext';
+import { SpreadCard } from './SpreadCard';
+import { parseLayoutDescriptor, getGridDimensions } from '@/lib/layoutParser';
+import { SpreadWithCards, Card } from '@/types';
+import Image from 'next/image';
+
+// Mock card for placeholders (satisfies Card interface)
+const createMockCard = (id: number): Card => ({
+    id,
+    name: '?',
+    arcana: 'major',
+    suit: null,
+    rank: null,
+    keywords: [],
+    meaning: '',
+    keywords_reversed: [],
+    meaning_reversed: '',
+    image: '',
+});
+
+// Mock spread for the initial state (Diamond layout - 5 cards)
+const MOCK_SPREAD: SpreadWithCards = {
+    reading_id: 'mock-reading',
+    question: '',
+    spread: {
+        name: 'Your Reading',
+        purpose: 'Awaiting your question...',
+        n_cards: 5,
+        layout_descriptor: 'X1X\n234\nX5X',
+        positions: [
+            { index: 0, meaning: 'Focus' },
+            { index: 1, meaning: 'Internal' },
+            { index: 2, meaning: 'Present' },
+            { index: 3, meaning: 'External' },
+            { index: 4, meaning: 'Outcome' },
+        ],
+        source: { type: 'system', spread_id: 'mock_spread', slug: 'mock_spread' },
+    },
+    cards: [
+        { position_index: 0, card: createMockCard(0), reversed: false },
+        { position_index: 1, card: createMockCard(1), reversed: false },
+        { position_index: 2, card: createMockCard(2), reversed: false },
+        { position_index: 3, card: createMockCard(3), reversed: false },
+        { position_index: 4, card: createMockCard(4), reversed: false },
+    ],
+};
+
+export function SpreadViewer() {
+    const {
+        activeSpread,
+        spreadViewMode,
+        setSpreadViewMode,
+        spreadHistory,
+        currentSpreadIndex,
+        navigateSpread,
+        showMockSpread,
+    } = useChatUI();
+    const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null);
+    const gridRef = useRef<HTMLDivElement>(null);
+    const [cardSize, setCardSize] = useState({ width: 80, height: 120 });
+    const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+
+    const isExpanded = spreadViewMode === 'expanded';
+
+    // Use mock spread when showMockSpread is true and there's no active spread
+    const displaySpread = showMockSpread && !activeSpread ? MOCK_SPREAD : activeSpread;
+    const isMockMode = showMockSpread && !activeSpread;
+
+    // Parse grid layout
+    const gridLayout = useMemo(() => {
+        if (!displaySpread) return null;
+        return parseLayoutDescriptor(displaySpread.spread.layout_descriptor);
+    }, [displaySpread]);
+
+    // Calculate grid dimensions
+    const dimensions = useMemo(() => {
+        if (!gridLayout) return { rows: 0, cols: 0 };
+        return getGridDimensions(gridLayout);
+    }, [gridLayout]);
+
+    // Track container size with ResizeObserver
+    useEffect(() => {
+        if (!gridRef.current) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                setContainerSize({
+                    width: entry.contentRect.width,
+                    height: entry.contentRect.height
+                });
+            }
+        });
+
+        observer.observe(gridRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    // Calculate card size - MAXIMIZE to fill available space while respecting constraints
+    useEffect(() => {
+        if (!containerSize.width || !containerSize.height || !dimensions.rows || !dimensions.cols) return;
+
+        const gap = 10;
+        const cardAspect = 1.5; // height/width ratio
+        const padding = 8;
+
+        // Available space for cards (use full container)
+        const availableWidth = containerSize.width - padding * 2;
+        const availableHeight = containerSize.height - padding * 2;
+
+        // Calculate max card dimensions that fit ALL cards
+        const maxCardWidth = (availableWidth - (dimensions.cols - 1) * gap) / dimensions.cols;
+        const maxCardHeight = (availableHeight - (dimensions.rows - 1) * gap) / dimensions.rows;
+
+        // Apply aspect ratio - find the limiting dimension
+        let finalWidth: number;
+        let finalHeight: number;
+
+        // Try width-constrained first
+        finalWidth = maxCardWidth;
+        finalHeight = finalWidth * cardAspect;
+
+        // If height exceeds available, use height-constrained instead
+        if (finalHeight > maxCardHeight) {
+            finalHeight = maxCardHeight;
+            finalWidth = finalHeight / cardAspect;
+        }
+
+        // Apply minimum, but re-check height constraint after
+        const minWidth = 35;
+        if (finalWidth < minWidth) {
+            finalWidth = minWidth;
+            finalHeight = finalWidth * cardAspect;
+            // Re-check height constraint after applying minimum
+            if (finalHeight > maxCardHeight) {
+                finalHeight = maxCardHeight;
+            }
+        }
+
+        setCardSize({ width: Math.floor(finalWidth), height: Math.floor(finalHeight) });
+    }, [containerSize, dimensions]);
+
+    // If nothing to show (no mock, no active spread, hidden mode)
+    if (!displaySpread || !gridLayout) {
+        return (
+            <div style={styles.emptyContainer}>
+                <p style={styles.emptyText}>Start a reading to see the spread</p>
+            </div>
+        );
+    }
+
+    const handleSpreadClick = () => {
+        if (!isExpanded) {
+            setSpreadViewMode('expanded');
+        }
+    };
+
+    const handleCardClick = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation();
+        // In mock mode, only allow expansion (not card detail)
+        if (isMockMode) {
+            if (!isExpanded) {
+                setSpreadViewMode('expanded');
+            }
+            return;
+        }
+        // Normal mode
+        if (isExpanded) {
+            setSelectedCardIndex(index);
+        } else {
+            setSpreadViewMode('expanded');
+        }
+    };
+
+    const closeCardDetail = () => setSelectedCardIndex(null);
+
+    const selectedCardData = selectedCardIndex !== null && activeSpread
+        ? activeSpread.cards.find(c => c.position_index === selectedCardIndex)
+        : null;
+
+    const hasMultipleSpreads = spreadHistory.length > 1;
+    const canGoPrev = currentSpreadIndex > 0;
+    const canGoNext = currentSpreadIndex < spreadHistory.length - 1;
+
+    return (
+        <div style={styles.container}>
+            {/* Header with spread name only */}
+            <div style={styles.header}>
+                <span style={styles.spreadName}>
+                    {isMockMode ? 'Awaiting Reading' : displaySpread.spread.name}
+                </span>
+            </div>
+
+            {/* Main spread area with navigation arrows on sides */}
+            <div style={styles.spreadArea}>
+                {/* Left navigation arrow */}
+                <div style={styles.navButtonContainer}>
+                    {hasMultipleSpreads && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); navigateSpread('prev'); }}
+                            style={{
+                                ...styles.navArrow,
+                                opacity: canGoPrev ? 1 : 0.3,
+                            }}
+                            disabled={!canGoPrev}
+                        >
+                            ‹
+                        </button>
+                    )}
+                </div>
+
+                {/* Grid container - this is what we measure */}
+                <div
+                    ref={gridRef}
+                    style={styles.gridContainer}
+                    onClick={handleSpreadClick}
+                >
+                    {/* Actual grid with cards */}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateRows: `repeat(${dimensions.rows}, ${cardSize.height}px)`,
+                            gridTemplateColumns: `repeat(${dimensions.cols}, ${cardSize.width}px)`,
+                            gap: '10px',
+                            cursor: isExpanded ? 'default' : 'pointer',
+                        }}
+                    >
+                        {gridLayout.map((row, r) => (
+                            row.map((cell, c) => {
+                                if (cell.type === 'empty') {
+                                    return <div key={`${r}-${c}`} />;
+                                }
+
+                                const cardData = displaySpread.cards.find(card => card.position_index === cell.positionIndex);
+                                if (!cardData) return <div key={`${r}-${c}`} />;
+
+                                return (
+                                    <div
+                                        key={`${r}-${c}`}
+                                        style={{
+                                            width: cardSize.width,
+                                            height: cardSize.height,
+                                            cursor: isExpanded && !isMockMode ? 'pointer' : (isExpanded ? 'default' : 'pointer'),
+                                        }}
+                                        onClick={(e) => handleCardClick(e, cell.positionIndex)}
+                                    >
+                                        {isMockMode ? (
+                                            <CardBack />
+                                        ) : (
+                                            <SpreadCard
+                                                card={cardData.card}
+                                                positionIndex={cell.positionIndex}
+                                                isReversed={cardData.reversed}
+                                                isCompact={!isExpanded}
+                                            />
+                                        )}
+                                    </div>
+                                );
+                            })
+                        ))}
+                    </div>
+                </div>
+
+                {/* Right navigation arrow */}
+                <div style={styles.navButtonContainer}>
+                    {hasMultipleSpreads && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); navigateSpread('next'); }}
+                            style={{
+                                ...styles.navArrow,
+                                opacity: canGoNext ? 1 : 0.3,
+                            }}
+                            disabled={!canGoNext}
+                        >
+                            ›
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom area: indicator dots + expand/collapse button */}
+            <div style={styles.bottomArea}>
+                {/* Indicator dots */}
+                {hasMultipleSpreads && (
+                    <div style={styles.dotsContainer}>
+                        <span style={styles.pageIndicator}>
+                            {currentSpreadIndex + 1} of {spreadHistory.length}
+                        </span>
+                        <div style={styles.dots}>
+                            {spreadHistory.map((_, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        ...styles.dot,
+                                        backgroundColor: index === currentSpreadIndex
+                                            ? '#d4b7fa'
+                                            : 'rgba(255,255,255,0.3)',
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Mock mode hint text */}
+                {isMockMode && (
+                    <div style={styles.mockHint}>
+                        Ask a question to reveal your cards
+                    </div>
+                )}
+
+                {/* Collapse/Expand button - same for both mock and normal spreads */}
+                {isExpanded ? (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setSpreadViewMode('compact'); }}
+                        style={styles.collapseBtn}
+                    >
+                        <span style={styles.collapseIcon}>↑</span>
+                        Collapse
+                    </button>
+                ) : (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); setSpreadViewMode('expanded'); }}
+                        style={styles.expandBtn}
+                    >
+                        Tap to expand
+                    </button>
+                )}
+            </div>
+
+            {/* FAB for hiding spread (positioned at top right of spread area) */}
+            {!isMockMode && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); setSpreadViewMode('hidden'); }}
+                    style={styles.hideFab}
+                    title="Hide spread"
+                >
+                    ✕
+                </button>
+            )}
+
+            {/* Card Detail Modal */}
+            {selectedCardIndex !== null && selectedCardData && activeSpread && (
+                <div style={styles.modalOverlay} onClick={closeCardDetail}>
+                    <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <button style={styles.modalClose} onClick={closeCardDetail}>✕</button>
+                        <div style={{
+                            ...styles.modalImageContainer,
+                            transform: selectedCardData.reversed ? 'rotate(180deg)' : 'none',
+                        }}>
+                            <Image
+                                src={selectedCardData.card.image}
+                                alt={selectedCardData.card.name}
+                                fill
+                                style={{ objectFit: 'contain' }}
+                            />
+                        </div>
+                        <div style={styles.modalText}>
+                            <h3>{selectedCardData.card.name} {selectedCardData.reversed && '(Reversed)'}</h3>
+                            <p style={{ color: '#aaa', fontSize: '14px' }}>
+                                Position {selectedCardIndex + 1}: {activeSpread.spread.positions[selectedCardIndex]?.meaning}
+                            </p>
+                            <p style={{ marginTop: '10px', fontSize: '14px', lineHeight: 1.5 }}>
+                                {selectedCardData.reversed
+                                    ? selectedCardData.card.meaning_reversed
+                                    : selectedCardData.card.meaning}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/**
+ * Card back component for the mock spread
+ */
+function CardBack() {
+    return (
+        <div style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.6)',
+            border: '2px solid #6d28d9',
+            position: 'relative',
+        }}>
+            <Image
+                src="/card-back.png"
+                alt="Card back"
+                fill
+                sizes="200px"
+                style={{ objectFit: 'cover' }}
+            />
+        </div>
+    );
+}
+
+const styles: Record<string, React.CSSProperties> = {
+    container: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#161626',
+        color: 'white',
+        overflow: 'hidden',
+        position: 'relative',
+    },
+    emptyContainer: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#161626',
+    },
+    emptyText: {
+        color: '#666',
+        fontSize: '14px',
+    },
+    header: {
+        padding: '8px 16px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        flexShrink: 0,
+    },
+    spreadName: {
+        fontWeight: 600,
+        color: '#d4b7fa',
+        textTransform: 'uppercase',
+        letterSpacing: '1px',
+        fontSize: '12px',
+    },
+    spreadArea: {
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        padding: '8px 0',
+    },
+    navButtonContainer: {
+        width: '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+    },
+    navArrow: {
+        background: 'rgba(255,255,255,0.08)',
+        border: '1px solid rgba(255,255,255,0.15)',
+        color: 'white',
+        fontSize: '32px',
+        fontWeight: 300,
+        width: '44px',
+        height: '70px',
+        borderRadius: '10px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s ease',
+    },
+    gridContainer: {
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        height: '100%',
+    },
+    bottomArea: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '8px 16px 12px',
+        gap: '8px',
+        flexShrink: 0,
+    },
+    dotsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '4px',
+    },
+    pageIndicator: {
+        fontSize: '11px',
+        color: '#888',
+    },
+    dots: {
+        display: 'flex',
+        gap: '6px',
+    },
+    dot: {
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        transition: 'background-color 0.2s ease',
+    },
+    mockHint: {
+        fontSize: '13px',
+        color: '#9b59b6',
+        fontStyle: 'italic',
+    },
+    collapseBtn: {
+        background: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
+        border: '1px solid rgba(255,255,255,0.2)',
+        color: 'white',
+        padding: '8px 20px',
+        borderRadius: '20px',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '13px',
+        fontWeight: 500,
+        transition: 'all 0.2s ease',
+        boxShadow: '0 2px 8px rgba(109, 40, 217, 0.4)',
+    },
+    collapseIcon: {
+        fontSize: '16px',
+    },
+    expandBtn: {
+        background: 'transparent',
+        border: '1px solid rgba(255,255,255,0.2)',
+        color: '#888',
+        padding: '8px 20px',
+        borderRadius: '20px',
+        cursor: 'pointer',
+        fontSize: '13px',
+        fontWeight: 500,
+        transition: 'all 0.2s ease',
+    },
+    hideFab: {
+        position: 'absolute',
+        top: '12px',
+        right: '12px',
+        background: 'rgba(255,100,100,0.9)',
+        border: 'none',
+        color: 'white',
+        width: '36px',
+        height: '36px',
+        borderRadius: '50%',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        zIndex: 10,
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        backdropFilter: 'blur(4px)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+    },
+    modalContent: {
+        backgroundColor: '#1f1f2e',
+        borderRadius: '16px',
+        padding: '20px',
+        maxWidth: '340px',
+        width: '100%',
+        maxHeight: '85vh',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        overflowY: 'auto',
+    },
+    modalClose: {
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        background: 'rgba(255,255,255,0.1)',
+        border: 'none',
+        color: 'white',
+        width: '30px',
+        height: '30px',
+        borderRadius: '50%',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
+    },
+    modalImageContainer: {
+        width: '100%',
+        height: '280px',
+        position: 'relative',
+        marginBottom: '16px',
+        flexShrink: 0,
+    },
+    modalText: {
+        overflowY: 'auto',
+    }
+};

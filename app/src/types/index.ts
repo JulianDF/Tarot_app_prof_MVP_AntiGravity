@@ -250,6 +250,7 @@ export interface ChatRequest {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
   activeSpread?: SpreadWithCards;
   spreadLedger?: SpreadLedgerEntry[];
+  conversationSummary?: string; // Summary of older messages (> 20 turns)
 }
 
 export interface ToolCall {
