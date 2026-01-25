@@ -82,94 +82,73 @@ export function SpreadViewer() {
         return getGridDimensions(gridLayout);
     }, [gridLayout]);
 
-    // Track container size with ResizeObserver
-    useEffect(() => {
-        if (!gridRef.current) return;
+    // Use a callback ref to reliably attach the ResizeObserver whenever the DOM node exists
+    const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                // Use getBoundingClientRect for more reliable sizing including padding
-                const rect = entry.target.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
-                    setContainerSize({
-                        width: rect.width,
-                        height: rect.height
-                    });
+    const setGridRef = React.useCallback((node: HTMLDivElement | null) => {
+        // Update the ref expectation
+        (gridRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+
+        // Cleanup previous observer
+        if (resizeObserverRef.current) {
+            resizeObserverRef.current.disconnect();
+            resizeObserverRef.current = null;
+        }
+
+        // Attach new observer if node exists
+        if (node) {
+            const observer = new ResizeObserver((entries) => {
+                for (const entry of entries) {
+                    const rect = entry.contentRect; // use contentRect for ResizeObserver
+                    if (rect.width > 0 && rect.height > 0) {
+                        setContainerSize({
+                            width: rect.width,
+                            height: rect.height
+                        });
+                    }
                 }
+            });
+            observer.observe(node);
+            resizeObserverRef.current = observer;
+
+            // Initial measure
+            const rect = node.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                setContainerSize({ width: rect.width, height: rect.height });
             }
-        });
+        }
+    }, [spreadViewMode]); // Re-attach if view mode changes (just in case structure shifts)
 
-        observer.observe(gridRef.current);
-        return () => observer.disconnect();
-    }, []);
-
-    // Calculate card size - MAXIMIZE to fill available space while respecting constraints
-    useEffect(() => {
+    // Calculate card size
+    React.useLayoutEffect(() => {
         if (!containerSize.width || !containerSize.height || !dimensions.rows || !dimensions.cols) return;
 
-        const gap = 10;
-        const cardAspect = 1.5; // height/width ratio
-        const padding = 8;
+        const gap = isExpanded ? 10 : 6;
+        const cardAspect = 1.5;
+        const verticalBuffer = 85; // Increased safety margin to prevent bottom overflow/cropping
+        const horizontalBuffer = 16;
 
-        // Available space for cards (use full container)
-        const availableWidth = containerSize.width - padding * 2;
-        const availableHeight = containerSize.height - padding * 2;
+        const availableWidth = containerSize.width - horizontalBuffer;
+        const availableHeight = containerSize.height - verticalBuffer;
 
-        // Calculate max card dimensions that fit ALL cards
         const maxCardWidth = (availableWidth - (dimensions.cols - 1) * gap) / dimensions.cols;
         const maxCardHeight = (availableHeight - (dimensions.rows - 1) * gap) / dimensions.rows;
 
-        // Apply aspect ratio - find the limiting dimension
-        let finalWidth: number;
-        let finalHeight: number;
+        let finalWidth = maxCardWidth;
+        let finalHeight = finalWidth * cardAspect;
 
-        // Try width-constrained first
-        finalWidth = maxCardWidth;
-        finalHeight = finalWidth * cardAspect;
-
-        // If height exceeds available, use height-constrained instead
         if (finalHeight > maxCardHeight) {
             finalHeight = maxCardHeight;
             finalWidth = finalHeight / cardAspect;
         }
 
-        // Apply minimum
-        const minWidth = 70;
-        if (finalWidth < minWidth) {
-            finalWidth = minWidth;
-            finalHeight = finalWidth * cardAspect;
-        }
+        finalWidth = Math.max(40, finalWidth);
+        finalHeight = Math.max(60, finalHeight);
 
         setCardSize({ width: Math.floor(finalWidth), height: Math.floor(finalHeight) });
+    }, [containerSize, dimensions, isExpanded]);
 
-    }, [containerSize, dimensions]);
-
-    // Force re-measurement after CSS transitions (300ms) when view mode changes
-    useEffect(() => {
-        if (isCollapsed) return;
-
-        // Immediate check
-        if (gridRef.current) {
-            const rect = gridRef.current.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-                setContainerSize({ width: rect.width, height: rect.height });
-            }
-        }
-
-        // Delayed check after transition
-        const timer = setTimeout(() => {
-            if (gridRef.current) {
-                const rect = gridRef.current.getBoundingClientRect();
-                if (rect.width > 0 && rect.height > 0) {
-                    setContainerSize({ width: rect.width, height: rect.height });
-                }
-            }
-        }, 350); // slightly longer than the 0.3s transition
-
-        return () => clearTimeout(timer);
-    }, [spreadViewMode, isCollapsed]);
-
-    // If nothing to show (no mock, no active spread, hidden mode)
+    // If nothing to show
     if (!displaySpread || !gridLayout) {
         return (
             <div style={styles.emptyContainer}>
@@ -213,7 +192,7 @@ export function SpreadViewer() {
 
     return (
         <div style={styles.container}>
-            {/* Header with spread name - clickable when collapsed */}
+            {/* Header with spread name */}
             <div
                 style={{
                     ...styles.header,
@@ -227,16 +206,7 @@ export function SpreadViewer() {
                     </span>
                     {/* Subtle expand indicator when collapsed */}
                     {isCollapsed && (
-                        <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            style={{ color: 'rgba(212, 183, 250, 0.6)' }}
-                        >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: 'rgba(212, 183, 250, 0.6)' }}>
                             <polyline points="6 9 12 15 18 9" />
                         </svg>
                     )}
@@ -252,9 +222,9 @@ export function SpreadViewer() {
             {!isCollapsed && (
                 <>
                     <div style={styles.spreadArea}>
-                        {/* Left navigation arrow */}
-                        <div style={styles.navButtonContainer}>
-                            {hasMultipleSpreads && (
+                        {/* Left navigation arrow - hide container if not needed to save space */}
+                        {hasMultipleSpreads && (
+                            <div style={styles.navButtonContainer}>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); navigateSpread('prev'); }}
                                     style={{
@@ -265,12 +235,12 @@ export function SpreadViewer() {
                                 >
                                     ‹
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
                         {/* Grid container - this is what we measure */}
                         <div
-                            ref={gridRef}
+                            ref={setGridRef}
                             style={styles.gridContainer}
                             onClick={handleSpreadClick}
                         >
@@ -280,7 +250,7 @@ export function SpreadViewer() {
                                     display: 'grid',
                                     gridTemplateRows: `repeat(${dimensions.rows}, ${cardSize.height}px)`,
                                     gridTemplateColumns: `repeat(${dimensions.cols}, ${cardSize.width}px)`,
-                                    gap: '10px',
+                                    gap: isExpanded ? '10px' : '6px',
                                     cursor: isExpanded ? 'default' : 'pointer',
                                 }}
                             >
@@ -320,9 +290,9 @@ export function SpreadViewer() {
                             </div>
                         </div>
 
-                        {/* Right navigation arrow */}
-                        <div style={styles.navButtonContainer}>
-                            {hasMultipleSpreads && (
+                        {/* Right navigation arrow - hide container if not needed */}
+                        {hasMultipleSpreads && (
+                            <div style={styles.navButtonContainer}>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); navigateSpread('next'); }}
                                     style={{
@@ -333,8 +303,8 @@ export function SpreadViewer() {
                                 >
                                     ›
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Bottom area: indicator dots + expand/collapse button */}

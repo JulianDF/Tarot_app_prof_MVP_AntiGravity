@@ -15,6 +15,10 @@ export interface Message {
 const SUMMARIZATION_THRESHOLD = 20;
 const KEEP_RECENT = 3;
 
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+
 export function useChat() {
     const { addSpread, activeSpread, contractMockSpread } = useChatUI();
     const [messages, setMessages] = useState<Message[]>([]);
@@ -76,10 +80,14 @@ export function useChat() {
         if (!content.trim() || isLoading) return;
 
         // Contract the mock spread when user sends first message
-        contractMockSpread();
+        try {
+            contractMockSpread();
+        } catch (e) {
+            console.error('Error contracting mock spread:', e);
+        }
 
         const userMessage: Message = {
-            id: crypto.randomUUID(),
+            id: generateId(),
             role: 'user',
             content: content.trim(),
         };
@@ -114,7 +122,7 @@ export function useChat() {
 
             // Add placeholder for assistant
             setMessages(prev => [...prev, {
-                id: crypto.randomUUID(),
+                id: generateId(),
                 role: 'assistant',
                 content: '',
                 toolCalls: [],
@@ -166,7 +174,7 @@ export function useChat() {
                                             : `🔧 ${event.name}`;
 
                                 setMessages(prev => [...prev, {
-                                    id: crypto.randomUUID(),
+                                    id: generateId(),
                                     role: 'system',
                                     content: toolDisplayName
                                 }]);
@@ -214,7 +222,7 @@ export function useChat() {
                                     addSpread(spreadWithCards);
 
                                     setMessages(prev => [...prev, {
-                                        id: crypto.randomUUID(),
+                                        id: generateId(),
                                         role: 'system',
                                         content: `Spread laid: ${spreadWithCards.spread.name}`
                                     }]);
@@ -231,7 +239,7 @@ export function useChat() {
         } catch (error) {
             console.error('Chat error:', error);
             setMessages(prev => [...prev, {
-                id: crypto.randomUUID(),
+                id: generateId(),
                 role: 'system',
                 content: 'Sorry, I encountered an error connecting to the spirits.'
             }]);

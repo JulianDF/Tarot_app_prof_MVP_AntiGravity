@@ -35,9 +35,9 @@ export function ChatLayout() {
     if (hasVisibleSpread) {
         showSpread = true;
         if (spreadViewMode === 'expanded') {
-            spreadHeight = '70vh'; // Large view for card inspection
+            spreadHeight = '75%'; // Large view for card inspection (percentage of parent height)
         } else if (spreadViewMode === 'compact') {
-            spreadHeight = '50%'; // Increased to fit card content without cropping
+            spreadHeight = '50%'; // Fit card content without cropping
         } else {
             spreadHeight = '44px'; // Collapsed - header only
         }
@@ -195,7 +195,7 @@ const styles: Record<string, React.CSSProperties> = {
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
+        height: '100%',
         width: '100%',
         overflow: 'hidden',
         backgroundColor: '#0f0f1a',
