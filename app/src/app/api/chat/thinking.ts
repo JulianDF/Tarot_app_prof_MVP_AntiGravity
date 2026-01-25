@@ -30,8 +30,10 @@ export interface InterpretationContext {
 // Thinking Model
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { getOpenAIKey } from '@/lib/envHelper';
+
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: getOpenAIKey(),
 });
 
 /**

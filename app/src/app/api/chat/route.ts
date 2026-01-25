@@ -21,6 +21,7 @@ import {
 import { requestThinkingInterpretation, InterpretationContext } from './thinking';
 import { getAllCards } from '@/services/cardService';
 import * as logger from '@/lib/chatLogger';
+import { getOpenAIKey } from '@/lib/envHelper';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Clients
@@ -30,9 +31,11 @@ const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+
+
 // Keep OpenAI for thinking model
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: getOpenAIKey(),
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
