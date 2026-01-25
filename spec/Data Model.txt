@@ -158,7 +158,6 @@ Use UUIDv4 for IDs unless you have a strong reason not to.
 **InterpretationRequest**
 - `id: string`
 - `reading_id: string`
-- `focus_area?: string` (optional: specific card/aspect to emphasize)
 - `requested_at: string` (ISO)
 
 **InterpretationResponse**

@@ -21,7 +21,7 @@ See `spec/Feature list.txt` for definitions of done.
 - Layout parsing: rows split by `\n`, tokens split by comma/whitespace; `X` = empty; integers are 1-based position indexes
 
 ## AI Architecture
-- **Conversation model**: GPT 5.2 mini — fast responses, clarifications, emotional support
+- **Conversation model**: Claude Haiku 4.5 — fast responses, clarifications, emotional support
 - **Interpretation model**: GPT 5.2 Thinking — called as tool for deep spread analysis
 - **Context window**: Last 20 messages + summary + active spread + spread ledger
 

@@ -3,8 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { SpreadWithCards } from '@/types';
 
-// Spread view states
-export type SpreadViewMode = 'hidden' | 'compact' | 'expanded';
+// Spread view states: collapsed = header only, compact = small spread, expanded = full spread
+export type SpreadViewMode = 'collapsed' | 'compact' | 'expanded';
 
 interface ChatUIContextType {
     // State
@@ -70,7 +70,7 @@ export function ChatUIProvider({ children }: { children: ReactNode }) {
     // Auto-hide when no spreads and mock is turned off
     useEffect(() => {
         if (spreadHistory.length === 0 && !showMockSpread) {
-            setSpreadViewMode('hidden');
+            setSpreadViewMode('collapsed');
         }
     }, [spreadHistory.length, showMockSpread]);
 

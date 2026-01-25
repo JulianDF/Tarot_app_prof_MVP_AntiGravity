@@ -28,8 +28,8 @@ export function SpreadCard({ card, isReversed, isCompact = false, onClick }: Spr
                 height: '100%',
                 borderRadius: isCompact ? '4px' : '8px',
                 overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-                border: '1px solid #444',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.5), 0 0 12px rgba(139, 92, 246, 0.2)',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
                 backgroundColor: '#1a1a2e',
                 position: 'relative',
             }}>

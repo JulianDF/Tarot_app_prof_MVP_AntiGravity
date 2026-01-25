@@ -13,7 +13,7 @@ This document defines the dual-model architecture for the AI Tarot Reader MVP, o
 │                          ▼                                       │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │                  CONVERSATION MODEL                        │  │
-│  │                  (GPT 5.2 mini)                           │  │
+│  │                  (Claude Haiku 4.5)                       │  │
 │  │                                                            │  │
 │  │  - Low latency responses                                   │  │
 │  │  - Conversational flow (acknowledgments, clarifications)  │  │
@@ -45,7 +45,7 @@ This document defines the dual-model architecture for the AI Tarot Reader MVP, o
 
 ## Model Roles
 
-### Conversation Model (GPT 5.2 mini)
+### Conversation Model (Claude Haiku 4.5)
 
 **Purpose:** Fast, conversational responses that maintain flow and rapport.
 
@@ -142,7 +142,9 @@ Lays a spread by drawing cards via RNG cascade (QRNG → random.org → slot mac
 
 Invokes the thinking model for deep spread interpretation.
 
-**Behavior:** Connects to the thinking model, which streams its interpretation back through mini as if mini generated it. The user experiences one seamless voice.
+**Behavior:** Replaces the mini model (Claude Haiku 4.5) with the thinking model (GPT 5.2 Thinking) for this turn only. The thinking model picks up the conversation where mini left off, with full access to the conversation context. Mini does not add any commentary or closing remarks after calling this tool. After the thinking model completes its interpretation, the turn returns to the user, and subsequent assistant responses resume with the mini model.
+
+**Important:** This tool takes NO parameters. The thinking model automatically receives the full conversation context, current spread, and all relevant information.
 
 ```json
 {
@@ -150,12 +152,7 @@ Invokes the thinking model for deep spread interpretation.
   "description": "Request a deep interpretation of the current spread. Call after laying a spread. The interpretation will flow through you seamlessly.",
   "parameters": {
     "type": "object",
-    "properties": {
-      "focus_area": {
-        "type": "string",
-        "description": "Optional: specific card or aspect to emphasize"
-      }
-    }
+    "properties": {}
   }
 }
 ```
@@ -196,18 +193,25 @@ if (message.role === 'tool' && message.name === 'list_spreads') {
 
 ## Streaming Strategy
 
-To minimize perceived latency when interpretation is requested:
+When `request_interpretation` is called:
 
-1. **Mini streams a bridge message:**
-   > "Let me look deeper into this spread..."
+1. **Mini's turn ends immediately** after calling the tool
 
-2. **Thinking model streams through mini:**
-   - Backend invokes thinking model
-   - Response streams in real-time
-   - Chunks pass through to client as mini's voice
+2. **Thinking model handles this turn only:**
+   - Backend replaces mini with thinking model (GPT 5.2 Thinking) for this single turn
+   - Thinking model receives full conversation context
+   - Response streams directly to client
+   - The user experiences a seamless handoff
 
-3. **Mini adds closing (optional):**
-   > "...that's what I see here. What resonates with you?"
+3. **No post-interpretation commentary from mini:**
+   - Mini does NOT add closing remarks
+   - Mini does NOT summarize or comment on the thinking model's output
+   - The thinking model's response is the final output for that turn
+
+4. **Conversation resumes with mini:**
+   - After the thinking model completes the interpretation, the turn passes to the user
+   - The next assistant response will be handled by mini (Claude Haiku 4.5) again
+   - Thinking model is only invoked when mini explicitly calls `request_interpretation`
 
 ---
 

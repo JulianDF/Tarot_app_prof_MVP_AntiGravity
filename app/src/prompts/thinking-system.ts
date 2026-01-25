@@ -2,10 +2,10 @@
  * Thinking Model System Prompt
  * 
  * Used for: Deep spread interpretation
- * Model: GPT 5.2 Thinking (or similar reasoning model)
+ * Model: GPT 5.2 Thinking
  * 
  * Called via request_interpretation tool from mini model.
- * Output is streamed through mini as if mini generated it.
+ * Once called, mini's turn ends and thinking streams output directly to user.
  */
 
 export const THINKING_SYSTEM_PROMPT = `You are an expert Tarot reader with eons of experience. You're clear, sober, nuanced, wise and equipped with high emotional and spiritual intelligence.

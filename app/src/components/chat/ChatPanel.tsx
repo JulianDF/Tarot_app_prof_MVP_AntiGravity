@@ -41,7 +41,14 @@ export function ChatPanel({ messages, isLoading }: ChatPanelProps) {
 
         // Only scroll if: new message added AND user was at bottom
         if (newMessageAdded && isUserAtBottom) {
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+            const container = containerRef.current;
+            if (container) {
+                // Use scrollTo instead of scrollIntoView to prevent parent scroll
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
         }
     }, [messages.length, isUserAtBottom]);
 
@@ -49,7 +56,7 @@ export function ChatPanel({ messages, isLoading }: ChatPanelProps) {
         <div ref={containerRef} style={styles.container}>
             {messages.length === 0 ? (
                 <div style={styles.placeholder}>
-                    <p>✨ Prepare yourself for guidance...</p>
+                    <p>✨ The cards await you</p>
                     <p style={{ fontSize: '0.9rem', opacity: 0.7, marginTop: '8px' }}>
                         Ask a question to begin your reading.
                     </p>

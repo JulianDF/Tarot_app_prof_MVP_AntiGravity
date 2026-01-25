@@ -64,6 +64,7 @@ export function SpreadViewer() {
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
     const isExpanded = spreadViewMode === 'expanded';
+    const isCollapsed = spreadViewMode === 'collapsed';
 
     // Use mock spread when showMockSpread is true and there's no active spread
     const displaySpread = showMockSpread && !activeSpread ? MOCK_SPREAD : activeSpread;
@@ -87,10 +88,14 @@ export function SpreadViewer() {
 
         const observer = new ResizeObserver((entries) => {
             for (const entry of entries) {
-                setContainerSize({
-                    width: entry.contentRect.width,
-                    height: entry.contentRect.height
-                });
+                // Use getBoundingClientRect for more reliable sizing including padding
+                const rect = entry.target.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    setContainerSize({
+                        width: rect.width,
+                        height: rect.height
+                    });
+                }
             }
         });
 
@@ -128,19 +133,41 @@ export function SpreadViewer() {
             finalWidth = finalHeight / cardAspect;
         }
 
-        // Apply minimum, but re-check height constraint after
-        const minWidth = 35;
+        // Apply minimum
+        const minWidth = 70;
         if (finalWidth < minWidth) {
             finalWidth = minWidth;
             finalHeight = finalWidth * cardAspect;
-            // Re-check height constraint after applying minimum
-            if (finalHeight > maxCardHeight) {
-                finalHeight = maxCardHeight;
-            }
         }
 
         setCardSize({ width: Math.floor(finalWidth), height: Math.floor(finalHeight) });
+
     }, [containerSize, dimensions]);
+
+    // Force re-measurement after CSS transitions (300ms) when view mode changes
+    useEffect(() => {
+        if (isCollapsed) return;
+
+        // Immediate check
+        if (gridRef.current) {
+            const rect = gridRef.current.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                setContainerSize({ width: rect.width, height: rect.height });
+            }
+        }
+
+        // Delayed check after transition
+        const timer = setTimeout(() => {
+            if (gridRef.current) {
+                const rect = gridRef.current.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    setContainerSize({ width: rect.width, height: rect.height });
+                }
+            }
+        }, 350); // slightly longer than the 0.3s transition
+
+        return () => clearTimeout(timer);
+    }, [spreadViewMode, isCollapsed]);
 
     // If nothing to show (no mock, no active spread, hidden mode)
     if (!displaySpread || !gridLayout) {
@@ -186,159 +213,219 @@ export function SpreadViewer() {
 
     return (
         <div style={styles.container}>
-            {/* Header with spread name only */}
-            <div style={styles.header}>
-                <span style={styles.spreadName}>
-                    {isMockMode ? 'Awaiting Reading' : displaySpread.spread.name}
-                </span>
-            </div>
-
-            {/* Main spread area with navigation arrows on sides */}
-            <div style={styles.spreadArea}>
-                {/* Left navigation arrow */}
-                <div style={styles.navButtonContainer}>
-                    {hasMultipleSpreads && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); navigateSpread('prev'); }}
-                            style={{
-                                ...styles.navArrow,
-                                opacity: canGoPrev ? 1 : 0.3,
-                            }}
-                            disabled={!canGoPrev}
+            {/* Header with spread name - clickable when collapsed */}
+            <div
+                style={{
+                    ...styles.header,
+                    cursor: isCollapsed ? 'pointer' : 'default',
+                }}
+                onClick={isCollapsed ? () => setSpreadViewMode('compact') : undefined}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={styles.spreadName}>
+                        {isMockMode ? 'Awaiting Reading' : displaySpread.spread.name}
+                    </span>
+                    {/* Subtle expand indicator when collapsed */}
+                    {isCollapsed && (
+                        <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            style={{ color: 'rgba(212, 183, 250, 0.6)' }}
                         >
-                            ‹
-                        </button>
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
                     )}
                 </div>
-
-                {/* Grid container - this is what we measure */}
-                <div
-                    ref={gridRef}
-                    style={styles.gridContainer}
-                    onClick={handleSpreadClick}
-                >
-                    {/* Actual grid with cards */}
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateRows: `repeat(${dimensions.rows}, ${cardSize.height}px)`,
-                            gridTemplateColumns: `repeat(${dimensions.cols}, ${cardSize.width}px)`,
-                            gap: '10px',
-                            cursor: isExpanded ? 'default' : 'pointer',
-                        }}
-                    >
-                        {gridLayout.map((row, r) => (
-                            row.map((cell, c) => {
-                                if (cell.type === 'empty') {
-                                    return <div key={`${r}-${c}`} />;
-                                }
-
-                                const cardData = displaySpread.cards.find(card => card.position_index === cell.positionIndex);
-                                if (!cardData) return <div key={`${r}-${c}`} />;
-
-                                return (
-                                    <div
-                                        key={`${r}-${c}`}
-                                        style={{
-                                            width: cardSize.width,
-                                            height: cardSize.height,
-                                            cursor: isExpanded && !isMockMode ? 'pointer' : (isExpanded ? 'default' : 'pointer'),
-                                        }}
-                                        onClick={(e) => handleCardClick(e, cell.positionIndex)}
-                                    >
-                                        {isMockMode ? (
-                                            <CardBack />
-                                        ) : (
-                                            <SpreadCard
-                                                card={cardData.card}
-                                                positionIndex={cell.positionIndex}
-                                                isReversed={cardData.reversed}
-                                                isCompact={!isExpanded}
-                                            />
-                                        )}
-                                    </div>
-                                );
-                            })
-                        ))}
-                    </div>
-                </div>
-
-                {/* Right navigation arrow */}
-                <div style={styles.navButtonContainer}>
-                    {hasMultipleSpreads && (
-                        <button
-                            onClick={(e) => { e.stopPropagation(); navigateSpread('next'); }}
-                            style={{
-                                ...styles.navArrow,
-                                opacity: canGoNext ? 1 : 0.3,
-                            }}
-                            disabled={!canGoNext}
-                        >
-                            ›
-                        </button>
-                    )}
-                </div>
+                {isExpanded && !isMockMode && displaySpread.question && (
+                    <span style={styles.spreadTopic}>
+                        &quot;{displaySpread.question}&quot;
+                    </span>
+                )}
             </div>
 
-            {/* Bottom area: indicator dots + expand/collapse button */}
-            <div style={styles.bottomArea}>
-                {/* Indicator dots */}
-                {hasMultipleSpreads && (
-                    <div style={styles.dotsContainer}>
-                        <span style={styles.pageIndicator}>
-                            {currentSpreadIndex + 1} of {spreadHistory.length}
-                        </span>
-                        <div style={styles.dots}>
-                            {spreadHistory.map((_, index) => (
-                                <div
-                                    key={index}
+            {/* Main spread area - hidden when collapsed */}
+            {!isCollapsed && (
+                <>
+                    <div style={styles.spreadArea}>
+                        {/* Left navigation arrow */}
+                        <div style={styles.navButtonContainer}>
+                            {hasMultipleSpreads && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); navigateSpread('prev'); }}
                                     style={{
-                                        ...styles.dot,
-                                        backgroundColor: index === currentSpreadIndex
-                                            ? '#d4b7fa'
-                                            : 'rgba(255,255,255,0.3)',
+                                        ...styles.navArrow,
+                                        opacity: canGoPrev ? 1 : 0.3,
                                     }}
-                                />
-                            ))}
+                                    disabled={!canGoPrev}
+                                >
+                                    ‹
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Grid container - this is what we measure */}
+                        <div
+                            ref={gridRef}
+                            style={styles.gridContainer}
+                            onClick={handleSpreadClick}
+                        >
+                            {/* Actual grid with cards */}
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateRows: `repeat(${dimensions.rows}, ${cardSize.height}px)`,
+                                    gridTemplateColumns: `repeat(${dimensions.cols}, ${cardSize.width}px)`,
+                                    gap: '10px',
+                                    cursor: isExpanded ? 'default' : 'pointer',
+                                }}
+                            >
+                                {gridLayout.map((row, r) => (
+                                    row.map((cell, c) => {
+                                        if (cell.type === 'empty') {
+                                            return <div key={`${r}-${c}`} />;
+                                        }
+
+                                        const cardData = displaySpread.cards.find(card => card.position_index === cell.positionIndex);
+                                        if (!cardData) return <div key={`${r}-${c}`} />;
+
+                                        return (
+                                            <div
+                                                key={`${r}-${c}`}
+                                                style={{
+                                                    width: cardSize.width,
+                                                    height: cardSize.height,
+                                                    cursor: isExpanded && !isMockMode ? 'pointer' : (isExpanded ? 'default' : 'pointer'),
+                                                }}
+                                                onClick={(e) => handleCardClick(e, cell.positionIndex)}
+                                            >
+                                                {isMockMode ? (
+                                                    <CardBack />
+                                                ) : (
+                                                    <SpreadCard
+                                                        card={cardData.card}
+                                                        positionIndex={cell.positionIndex}
+                                                        isReversed={cardData.reversed}
+                                                        isCompact={!isExpanded}
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right navigation arrow */}
+                        <div style={styles.navButtonContainer}>
+                            {hasMultipleSpreads && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); navigateSpread('next'); }}
+                                    style={{
+                                        ...styles.navArrow,
+                                        opacity: canGoNext ? 1 : 0.3,
+                                    }}
+                                    disabled={!canGoNext}
+                                >
+                                    ›
+                                </button>
+                            )}
                         </div>
                     </div>
-                )}
 
-                {/* Mock mode hint text */}
-                {isMockMode && (
-                    <div style={styles.mockHint}>
-                        Ask a question to reveal your cards
+                    {/* Bottom area: indicator dots + expand/collapse button */}
+                    <div style={styles.bottomArea}>
+                        {/* Indicator dots */}
+                        {hasMultipleSpreads && (
+                            <div style={styles.dotsContainer}>
+                                <span style={styles.pageIndicator}>
+                                    {currentSpreadIndex + 1} of {spreadHistory.length}
+                                </span>
+                                <div style={styles.dots}>
+                                    {spreadHistory.map((_, index) => (
+                                        <div
+                                            key={index}
+                                            style={{
+                                                ...styles.dot,
+                                                backgroundColor: index === currentSpreadIndex
+                                                    ? '#d4b7fa'
+                                                    : 'rgba(255,255,255,0.3)',
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Mock mode hint text */}
+                        {isMockMode && (
+                            <div style={styles.mockHint}>
+                                Ask a question to reveal your cards
+                            </div>
+                        )}
+
+                        {/* Control buttons - positioned at bottom center */}
+                        <div style={styles.controlButtons}>
+                            {/* Expand/Contract toggle button */}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSpreadViewMode(isExpanded ? 'compact' : 'expanded');
+                                }}
+                                style={styles.controlBtn}
+                                title={isExpanded ? 'Contract spread' : 'Expand spread'}
+                            >
+                                <svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    style={{
+                                        transition: 'transform 0.2s ease',
+                                    }}
+                                >
+                                    {isExpanded ? (
+                                        <polyline points="18 15 12 9 6 15" />
+                                    ) : (
+                                        <polyline points="6 9 12 15 18 9" />
+                                    )}
+                                </svg>
+                            </button>
+
+                            {/* Collapse to FAB button */}
+                            {!isMockMode && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setSpreadViewMode('collapsed'); }}
+                                    style={styles.controlBtn}
+                                    title="Minimize spread"
+                                >
+                                    <svg
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
-                )}
 
-                {/* Collapse/Expand button - same for both mock and normal spreads */}
-                {isExpanded ? (
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setSpreadViewMode('compact'); }}
-                        style={styles.collapseBtn}
-                    >
-                        <span style={styles.collapseIcon}>↑</span>
-                        Collapse
-                    </button>
-                ) : (
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setSpreadViewMode('expanded'); }}
-                        style={styles.expandBtn}
-                    >
-                        Tap to expand
-                    </button>
-                )}
-            </div>
-
-            {/* FAB for hiding spread (positioned at top right of spread area) */}
-            {!isMockMode && (
-                <button
-                    onClick={(e) => { e.stopPropagation(); setSpreadViewMode('hidden'); }}
-                    style={styles.hideFab}
-                    title="Hide spread"
-                >
-                    ✕
-                </button>
+                </>
             )}
 
             {/* Card Detail Modal */}
@@ -385,8 +472,8 @@ function CardBack() {
             height: '100%',
             borderRadius: '8px',
             overflow: 'hidden',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.6)',
-            border: '2px solid #6d28d9',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.6), 0 0 16px rgba(139, 92, 246, 0.3)',
+            border: '1px solid rgba(139, 92, 246, 0.4)',
             position: 'relative',
         }}>
             <Image
@@ -406,7 +493,7 @@ const styles: Record<string, React.CSSProperties> = {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#161626',
+        background: 'transparent', // Parent frame provides the glass effect
         color: 'white',
         overflow: 'hidden',
         position: 'relative',
@@ -424,8 +511,11 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: '14px',
     },
     header: {
-        padding: '8px 16px',
+        height: '44px',
+        minHeight: '44px',
+        padding: '0 16px',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         borderBottom: '1px solid rgba(255,255,255,0.1)',
@@ -437,6 +527,16 @@ const styles: Record<string, React.CSSProperties> = {
         textTransform: 'uppercase',
         letterSpacing: '1px',
         fontSize: '12px',
+    },
+    spreadTopic: {
+        fontSize: '13px',
+        color: '#888',
+        fontStyle: 'italic',
+        marginTop: '4px',
+        maxWidth: '300px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
     },
     spreadArea: {
         flex: 1,
@@ -509,53 +609,25 @@ const styles: Record<string, React.CSSProperties> = {
         color: '#9b59b6',
         fontStyle: 'italic',
     },
-    collapseBtn: {
-        background: 'linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%)',
-        border: '1px solid rgba(255,255,255,0.2)',
-        color: 'white',
-        padding: '8px 20px',
-        borderRadius: '20px',
-        cursor: 'pointer',
+    controlButtons: {
         display: 'flex',
+        gap: '12px',
         alignItems: 'center',
-        gap: '6px',
-        fontSize: '13px',
-        fontWeight: 500,
-        transition: 'all 0.2s ease',
-        boxShadow: '0 2px 8px rgba(109, 40, 217, 0.4)',
+        justifyContent: 'center',
     },
-    collapseIcon: {
-        fontSize: '16px',
-    },
-    expandBtn: {
-        background: 'transparent',
-        border: '1px solid rgba(255,255,255,0.2)',
-        color: '#888',
-        padding: '8px 20px',
-        borderRadius: '20px',
-        cursor: 'pointer',
-        fontSize: '13px',
-        fontWeight: 500,
-        transition: 'all 0.2s ease',
-    },
-    hideFab: {
-        position: 'absolute',
-        top: '12px',
-        right: '12px',
-        background: 'rgba(255,100,100,0.9)',
-        border: 'none',
-        color: 'white',
-        width: '36px',
-        height: '36px',
+    controlBtn: {
+        background: 'rgba(255,255,255,0.08)',
+        border: '1px solid rgba(255,255,255,0.15)',
+        color: 'rgba(255,255,255,0.7)',
+        width: '40px',
+        height: '40px',
         borderRadius: '50%',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '16px',
-        fontWeight: 'bold',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-        zIndex: 10,
+        transition: 'all 0.2s ease',
+        backdropFilter: 'blur(8px)',
     },
     modalOverlay: {
         position: 'fixed',

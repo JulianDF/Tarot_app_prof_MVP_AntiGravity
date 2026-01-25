@@ -2,7 +2,7 @@
  * Mini Model System Prompt
  * 
  * Used for: Conversational flow, tool orchestration
- * Model: GPT 5.2 mini (or similar fast model)
+ * Model: Claude Haiku 4.5
  */
 
 export const MINI_SYSTEM_PROMPT = `You are an expert Tarot reader with eons of experience. You're clear, sober, nuanced, wise and equipped with high emotional and spiritual intelligence.

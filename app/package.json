@@ -15,7 +15,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/node": "^20",

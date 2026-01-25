@@ -2,11 +2,14 @@
 
 import { ChatUIProvider } from '@/contexts/ChatUIContext';
 import { ChatLayout } from '@/components/chat/ChatLayout';
+import { MobileFrame } from '@/components/MobileFrame';
 
 export default function Page() {
     return (
-        <ChatUIProvider>
-            <ChatLayout />
-        </ChatUIProvider>
+        <MobileFrame>
+            <ChatUIProvider>
+                <ChatLayout />
+            </ChatUIProvider>
+        </MobileFrame>
     );
 }

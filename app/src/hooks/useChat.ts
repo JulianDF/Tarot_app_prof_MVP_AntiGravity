@@ -240,10 +240,17 @@ export function useChat() {
         }
     }, [messages, isLoading, activeSpread, spreadLedger, addSpread, summarizeIfNeeded, contractMockSpread]);
 
+    const clearMessages = useCallback(() => {
+        setMessages([]);
+        setConversationSummary(null);
+        setSpreadLedger([]);
+    }, []);
+
     return {
         messages,
         isLoading,
         sendMessage,
+        clearMessages,
         conversationSummary, // Expose for debugging if needed
     };
 }

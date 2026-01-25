@@ -6,6 +6,7 @@
  * - Complex synthesis across multiple spreads is needed
  * 
  * Receives the SAME context as mini to ensure conversation continuity.
+ * Once called, mini's turn ends and thinking streams directly to user.
  */
 
 import OpenAI from 'openai';

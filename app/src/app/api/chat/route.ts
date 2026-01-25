@@ -3,7 +3,7 @@
  * 
  * Implements the dual-model architecture from spec/ai-architecture.md:
  * - Conversation model (Claude Haiku 4.5) for fast responses and tool calls
- * - Thinking model (GPT 5.2) for deep interpretations (via request_interpretation tool)
+ * - Thinking model (GPT 5.2 Thinking) for deep interpretations (via request_interpretation tool)
  */
 
 import { NextRequest } from 'next/server';
