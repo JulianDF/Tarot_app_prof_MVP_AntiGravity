@@ -20,8 +20,7 @@ export function MessageInput({ onSend, isLoading = false }: MessageInputProps) {
             onSend(message);
         }
         setMessage('');
-        // We probably want to stay in typing mode if user hits enter
-        // setTypingMode(true); // already true from focus
+
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
