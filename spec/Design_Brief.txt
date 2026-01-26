@@ -1,0 +1,180 @@
+
+
+## 1) General design description
+
+A premium, calm, editorial UI built around **warm parchment neutrals + muted brass accents** so the **Rider–Waite card colors stay the hero**. The layout is very clean: a light “paper” app shell, an airy spread stage with a *barely-there pressed-paper texture*, and a chat area separated by soft elevation and rounded corners. Buttons and icons are “quiet” (thin strokes, low contrast), with just enough hierarchy through spacing, hairlines, and subtle shadows.
+
+**Overall vibe:** museum label / book paper / quiet luxury.
+
+---
+
+## 2) Color palette (core tokens)
+
+Use these as global tokens:
+
+* **Paper / base background:** `#F3EEE4`
+* **Paper 2 (slightly deeper):** `#E9E1D4`
+* **Card / surface (chat bubbles, panels):** `#F6F1E8`
+* **Hairline / divider:** `#D8CFC1`
+* **Primary text (near-ink):** `#2F2A24`
+* **Secondary text:** `#6B6157`
+* **Muted icon / UI chrome:** `#8A7E72`
+* **Accent (muted brass):** `#B9A27A`
+* **Accent dark (for pressed states):** `#8E7A56`
+* **Shadow color (very subtle, warm):** `rgba(47, 42, 36, 0.10)`
+
+---
+
+## 3) Element-by-element colors (HTML/CSS)
+
+### App background (full screen)
+
+* Background: `#F3EEE4`
+* Optional vignette (very soft): center `#F6F1E8` → edges `#EFE7DA`
+
+### Header bar
+
+* Background: `#F3EEE4` (same as base, so it feels “printed on the page”)
+* Bottom divider (hairline): `#D8CFC1`
+* Title text: `#2F2A24`
+* Icon buttons (hamburger, clock):
+
+  * Icon stroke: `#8A7E72`
+  * Button background: transparent
+  * Button border (subtle): `#D8CFC1` at ~60% opacity
+
+### Spread viewer “stage” (the big top area)
+
+* Background: `#F3EEE4`
+* Inner stage panel (optional, to define the stage subtly): `#F6F1E8` at 40–60% opacity
+* Stage border / frame line: `#D8CFC1`
+* **Texture overlay:** see section 4
+
+### Card drop shadows (so the cards float slightly)
+
+* Shadow: `0 10px 24px rgba(47, 42, 36, 0.12)`
+* Secondary micro-shadow: `0 2px 6px rgba(47, 42, 36, 0.08)`
+
+### Spread controls (the two round buttons under the cards - expand/collapse)
+
+* Button fill: `#EFE7DA`
+* Border: `#D8CFC1`
+* Icon: `#6B6157`
+* Pressed: fill `#E9E1D4`, icon `#2F2A24`
+
+### Chat area (bottom)
+
+**Chat container panel**
+
+* Background: `#E9E1D4` (slightly darker than base to create separation)
+* Top divider / shadow: `0 -10px 30px rgba(47, 42, 36, 0.12)`
+
+**User message bubble**
+
+* Bubble fill: `#F6F1E8`
+* Bubble border: `#D8CFC1` (optional; can be 0 if you rely on shadow)
+* Text: `#2F2A24`
+* Shadow: `0 10px 18px rgba(47, 42, 36, 0.10)`
+
+**Assistant message bubble**
+
+* Bubble fill: `#F3EEE4` (slightly closer to base than user bubble)
+* Text: `#2F2A24`
+* Secondary text (if any): `#6B6157`
+
+**Message input**
+
+* Field fill: `#F6F1E8`
+* Border: `#D8CFC1`
+* Placeholder: `#8A7E72`
+* Text: `#2F2A24`
+
+**Send button**
+
+* Circle fill: `#EFE7DA`
+* Border: `#D8CFC1`
+* Icon: `#6B6157`
+* Active: fill `#B9A27A`, icon `#2F2A24`
+
+---
+
+## 4) Background texture spec (the “very slight elegant texture”)
+
+**Type:** *Pressed paper / parchment grain* (not noisy, not “grunge”).
+Think: smooth cotton paper with a subtle fiber + emboss variation.
+
+**Implementation suggestion (CSS):**
+
+* Base stage is flat color.
+* Add **2 overlays** at very low opacity:
+
+  1. **Fine grain** (tiny monochrome noise) at **3–5% opacity**
+  2. **Soft emboss blotches** (large, blurred cloud texture) at **2–4% opacity**
+
+**Target look:** You notice it only when you look for it; it prevents the spread stage from feeling “dead flat”.
+
+---
+
+## 5) Typography (fonts)
+
+This design reads best with a **high-quality editorial serif** for headers + a **clean modern sans** for chat.
+
+### Recommended pairing A (premium, easy to ship)
+
+* **Headers / spread title:** `Fraunces` (Google Font)
+
+  * Weight: 500–600
+  * Letter spacing: +0.08em (small caps vibe if you want)
+* **Body / chat / UI:** `Inter`
+
+  * Weight: 400–500
+
+### Alternative pairing B (even more “book”)
+
+* Headers: `Cormorant Garamond` (600)
+* Body: `Source Sans 3` (400–500)
+
+**Type colors**
+
+* Primary: `#2F2A24`
+* Secondary: `#6B6157`
+
+---
+
+## 6) Layout & separation rules (what makes it feel refined)
+
+* Separation is done via:
+
+  * **Hairline dividers** (`#D8CFC1`)
+  * **One layer of elevation** (chat panel sits “above” the page)
+  * **Spacing** (more whitespace, fewer boxes)
+* Keep icon buttons in header **small + outlined**, not filled, so the content stays dominant.
+* Keep the spread stage **quiet**: texture + maybe a faint frame, but no gradient drama.
+
+---
+
+## 7) Quick sizing (optional but practical)
+
+* Corner radius:
+
+  * Chat bubbles: 16–20
+  * Input field: 14–16
+  * Icon buttons: 12–14
+* Hairline: 1px at ~60% opacity
+* Spacing:
+
+  * Header padding: 16–20
+  * Spread stage padding: 24+
+  * Chat padding: 16–20
+
+---
+
+Notes for implementation (important)
+
+Do NOT add gradients beyond extremely soft vignettes.
+
+Texture should be implemented as a low-opacity overlay, never baked into the base color.
+
+Rider–Waite cards must cast shadows to feel tactile against the paper.
+
+Avoid pure white anywhere — it breaks the illusion.

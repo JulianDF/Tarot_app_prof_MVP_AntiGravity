@@ -81,6 +81,22 @@ export function ChatLayout() {
             }}>
                 {showSpread && (
                     <div style={styles.spreadFrame}>
+                        {/* Paper grain texture overlay */}
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            backgroundImage: 'url(/paper-texture.jpg)',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            opacity: 0.5,
+                            mixBlendMode: 'multiply',
+                            pointerEvents: 'none',
+                            zIndex: 1,
+                            borderRadius: '0 0 12px 12px',
+                        }} />
                         <div style={styles.spreadContent}>
                             <SpreadViewer />
                         </div>
@@ -107,7 +123,7 @@ export function ChatLayout() {
                             onClick={() => setIncludeReversals(!includeReversals)}
                             style={{
                                 ...styles.toggle,
-                                backgroundColor: includeReversals ? '#6d28d9' : '#3a3a4e',
+                                backgroundColor: includeReversals ? '#B9A27A' : '#D8CFC1',
                             }}
                         >
                             <div style={{
@@ -127,7 +143,7 @@ export function ChatLayout() {
                             onClick={() => setAllowDuplicates(!allowDuplicates)}
                             style={{
                                 ...styles.toggle,
-                                backgroundColor: allowDuplicates ? '#6d28d9' : '#3a3a4e',
+                                backgroundColor: allowDuplicates ? '#B9A27A' : '#D8CFC1',
                             }}
                         >
                             <div style={{
@@ -198,8 +214,8 @@ const styles: Record<string, React.CSSProperties> = {
         height: '100%',
         width: '100%',
         overflow: 'hidden',
-        backgroundColor: '#0f0f1a',
-        color: '#e0e0e0',
+        backgroundColor: '#F3EEE4',
+        color: '#2F2A24',
     },
     spreadRegion: {
         transition: 'height 0.3s ease-in-out',
@@ -211,12 +227,11 @@ const styles: Record<string, React.CSSProperties> = {
         width: '100%',
         height: '100%',
         position: 'relative',
-        background: 'linear-gradient(180deg, rgba(35, 30, 55, 0.95) 0%, rgba(22, 22, 38, 0.98) 100%)',
-        backdropFilter: 'blur(12px)',
+        background: '#F6F1E8',
         borderRadius: '0 0 12px 12px',
-        border: '1px solid rgba(139, 92, 246, 0.25)',
+        border: '1px solid #D8CFC1',
         borderTop: 'none',
-        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+        boxShadow: '0 4px 24px rgba(47, 42, 36, 0.10), inset 0 0 60px rgba(185, 162, 122, 0.08)',
     },
     spreadContent: {
         width: '100%',
@@ -233,8 +248,8 @@ const styles: Record<string, React.CSSProperties> = {
     },
     inputRegion: {
         width: '100%',
-        backgroundColor: '#1a1a2e',
-        borderTop: '1px solid #2a2a3a',
+        backgroundColor: '#E9E1D4',
+        borderTop: '1px solid #D8CFC1',
         flexShrink: 0,
     },
     // Settings content styles
@@ -257,7 +272,7 @@ const styles: Record<string, React.CSSProperties> = {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 0',
-        borderBottom: '1px solid rgba(139, 92, 246, 0.15)',
+        borderBottom: '1px solid rgba(216, 207, 193, 0.6)',
     },
     optionInfo: {
         display: 'flex',
@@ -266,11 +281,11 @@ const styles: Record<string, React.CSSProperties> = {
     },
     optionLabel: {
         fontSize: '15px',
-        color: '#e0e0e0',
+        color: '#2F2A24',
     },
     optionDesc: {
         fontSize: '12px',
-        color: '#888',
+        color: '#8A7E72',
     },
     toggle: {
         width: '44px',
@@ -294,7 +309,7 @@ const styles: Record<string, React.CSSProperties> = {
     },
     footerText: {
         fontSize: '12px',
-        color: '#666',
+        color: '#8A7E72',
         fontStyle: 'italic',
         marginTop: '16px',
     },
@@ -310,8 +325,8 @@ const styles: Record<string, React.CSSProperties> = {
         alignItems: 'flex-start',
         textAlign: 'left',
         padding: '12px',
-        backgroundColor: 'rgba(37, 37, 56, 0.8)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
+        backgroundColor: '#F6F1E8',
+        border: '1px solid #D8CFC1',
         borderRadius: '10px',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
@@ -327,15 +342,15 @@ const styles: Record<string, React.CSSProperties> = {
     sessionName: {
         fontSize: '14px',
         fontWeight: 600,
-        color: '#d4b7fa',
+        color: '#B9A27A',
     },
     sessionDate: {
         fontSize: '11px',
-        color: '#888',
+        color: '#8A7E72',
     },
     sessionSummary: {
         fontSize: '12px',
-        color: '#a0a0b0',
+        color: '#6B6157',
         lineHeight: 1.4,
         margin: 0,
     },
@@ -347,10 +362,10 @@ const styles: Record<string, React.CSSProperties> = {
         width: '100%',
         padding: '12px',
         marginTop: '8px',
-        backgroundColor: 'rgba(42, 42, 62, 0.8)',
-        border: '1px solid rgba(139, 92, 246, 0.2)',
+        backgroundColor: '#EFE7DA',
+        border: '1px solid #D8CFC1',
         borderRadius: '10px',
-        color: '#a0a0b0',
+        color: '#6B6157',
         fontSize: '14px',
         cursor: 'pointer',
         transition: 'all 0.2s ease',

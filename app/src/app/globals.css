@@ -1,50 +1,59 @@
 /**
  * Tarot App — Design System
+ * Parchment Minimal Theme
  * CSS Variables + Base Styles
  */
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Design Tokens
+   Design Tokens — Parchment Minimal
    ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Colors - Mystical Purple/Gold Theme */
-  --color-primary: hsl(270, 60%, 50%);
-  --color-primary-light: hsl(270, 60%, 65%);
-  --color-primary-dark: hsl(270, 60%, 35%);
+  /* Colors - Warm Parchment Theme */
+  /* Base backgrounds */
+  --color-app-bg: #F3EEE4;
+  --color-paper-secondary: #E9E1D4;
+  --color-surface: #F6F1E8;
 
-  --color-secondary: hsl(45, 80%, 55%);
-  --color-secondary-light: hsl(45, 80%, 70%);
-  --color-secondary-dark: hsl(45, 80%, 40%);
+  /* Legacy aliases for compatibility */
+  --color-primary: #B9A27A;
+  --color-primary-light: #C9B48E;
+  --color-primary-dark: #8E7A56;
+  --color-secondary: #B9A27A;
+  --color-secondary-light: #C9B48E;
+  --color-secondary-dark: #8E7A56;
 
   /* Backgrounds */
-  --bg-base: hsl(270, 15%, 8%);
-  --bg-surface: hsl(270, 15%, 12%);
-  --bg-elevated: hsl(270, 15%, 16%);
-  --bg-card: hsl(270, 20%, 14%);
-  --bg-card-hover: hsl(270, 20%, 18%);
+  --bg-base: #F3EEE4;
+  --bg-surface: #F6F1E8;
+  --bg-elevated: #E9E1D4;
+  --bg-card: #F6F1E8;
+  --bg-card-hover: #EFE7DA;
 
   /* Text */
-  --text-primary: hsl(0, 0%, 95%);
-  --text-secondary: hsl(0, 0%, 70%);
-  --text-muted: hsl(0, 0%, 50%);
-  --text-accent: var(--color-secondary);
+  --text-primary: #2F2A24;
+  --text-secondary: #6B6157;
+  --text-muted: #8A7E72;
+  --text-accent: #B9A27A;
 
   /* Borders */
-  --border-subtle: hsl(270, 15%, 20%);
-  --border-default: hsl(270, 15%, 25%);
-  --border-accent: var(--color-primary);
+  --border-subtle: #D8CFC1;
+  --border-default: #D8CFC1;
+  --border-accent: #B9A27A;
+  --border-hairline: rgba(216, 207, 193, 0.6);
 
-  /* Gradients */
-  --gradient-mystical: linear-gradient(135deg, hsl(270, 40%, 20%) 0%, hsl(300, 30%, 15%) 50%, hsl(270, 40%, 12%) 100%);
-  --gradient-gold: linear-gradient(135deg, hsl(45, 80%, 55%) 0%, hsl(35, 70%, 45%) 100%);
-  --gradient-card-glow: radial-gradient(ellipse at center, hsl(270, 50%, 25%) 0%, transparent 70%);
+  /* Accent - Muted Brass */
+  --accent-brass: #B9A27A;
+  --accent-brass-dark: #8E7A56;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 4px hsla(0, 0%, 0%, 0.3);
-  --shadow-md: 0 4px 12px hsla(0, 0%, 0%, 0.4);
-  --shadow-lg: 0 8px 24px hsla(0, 0%, 0%, 0.5);
-  --shadow-glow: 0 0 20px hsla(270, 60%, 50%, 0.3);
+  /* Shadows - Warm Soft */
+  --shadow-color: rgba(47, 42, 36, 0.10);
+  --shadow-sm: 0 2px 4px rgba(47, 42, 36, 0.08);
+  --shadow-md: 0 4px 12px rgba(47, 42, 36, 0.10);
+  --shadow-lg: 0 8px 24px rgba(47, 42, 36, 0.12);
+  --shadow-card: 0 10px 24px rgba(47, 42, 36, 0.12), 0 2px 6px rgba(47, 42, 36, 0.08);
+  --shadow-bubble: 0 10px 18px rgba(47, 42, 36, 0.10);
+  --shadow-chat-panel: 0 -10px 30px rgba(47, 42, 36, 0.12);
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -55,16 +64,20 @@
   --space-2xl: 3rem;
   --space-3xl: 4rem;
 
-  /* Border Radius */
+  /* Border Radius - Per Design Brief */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-lg: 14px;
   --radius-xl: 16px;
+  --radius-chat-bubble: 18px;
+  --radius-input: 16px;
+  --radius-icon-btn: 14px;
+  --radius-card: 8px;
   --radius-full: 9999px;
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -74,6 +87,9 @@
   --text-2xl: 1.5rem;
   --text-3xl: 2rem;
   --text-4xl: 2.5rem;
+
+  /* Letter spacing for headings */
+  --letter-spacing-heading: 0.08em;
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -110,7 +126,6 @@ body {
   line-height: 1.6;
   color: var(--text-primary);
   background: var(--bg-base);
-  background-image: var(--gradient-mystical);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -130,6 +145,7 @@ h6 {
   font-weight: 600;
   line-height: 1.3;
   color: var(--text-primary);
+  letter-spacing: var(--letter-spacing-heading);
 }
 
 h1 {
@@ -205,14 +221,16 @@ a:hover {
 }
 
 .btn-primary {
-  background: var(--gradient-gold);
-  color: hsl(0, 0%, 10%);
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
   box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), 0 0 20px hsla(45, 80%, 55%, 0.3);
+  background: var(--accent-brass);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
 }
 
 .btn-secondary {
@@ -356,7 +374,7 @@ a:hover {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Folder Tab Buttons
+   Folder Tab Buttons - Parchment Theme
    ───────────────────────────────────────────────────────────────────────────── */
 
 .folder-tab {
@@ -368,19 +386,20 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, hsl(270, 20%, 18%) 0%, hsl(270, 15%, 12%) 100%);
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary-light);
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
   cursor: pointer;
   z-index: 40;
   transition: all var(--transition-base);
-  box-shadow: 0 0 12px hsla(270, 60%, 50%, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .folder-tab:hover {
-  background: linear-gradient(180deg, hsl(270, 25%, 22%) 0%, hsl(270, 20%, 16%) 100%);
-  box-shadow: 0 0 16px hsla(270, 60%, 50%, 0.5);
+  background: var(--bg-surface);
+  border-color: var(--accent-brass);
   color: var(--text-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .folder-tab--left {
@@ -396,7 +415,7 @@ a:hover {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Vaul Side Drawer Styles
+   Vaul Side Drawer Styles - Parchment Theme
    ───────────────────────────────────────────────────────────────────────────── */
 
 .drawer-overlay {
@@ -406,7 +425,7 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(47, 42, 36, 0.4);
   backdrop-filter: blur(4px);
   z-index: 50;
 }
@@ -418,13 +437,13 @@ a:hover {
   bottom: 0;
   width: 280px;
   max-width: 85%;
-  background: linear-gradient(180deg, hsl(270, 20%, 14%) 0%, hsl(270, 15%, 8%) 100%);
-  border: 1px solid var(--color-primary);
+  background: var(--color-paper-secondary);
+  border: 1px solid var(--border-default);
   border-top: none;
   z-index: 51;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 24px rgba(139, 92, 246, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .drawer-content--left {
@@ -444,7 +463,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-lg);
-  border-bottom: 1px solid hsla(270, 50%, 50%, 0.2);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
 .drawer-title {
@@ -469,7 +488,7 @@ a:hover {
 
 .drawer-close:hover {
   color: var(--text-primary);
-  background: hsla(270, 50%, 50%, 0.1);
+  background: rgba(47, 42, 36, 0.08);
 }
 
 .drawer-body {

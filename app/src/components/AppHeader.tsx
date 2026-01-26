@@ -69,8 +69,8 @@ const styles: Record<string, React.CSSProperties> = {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '8px 12px',
-        backgroundColor: '#1a1a2e',
-        borderBottom: '1px solid #2a2a3e',
+        backgroundColor: '#F3EEE4',
+        borderBottom: '1px solid #D8CFC1',
         height: '48px',
         flexShrink: 0,
     },
@@ -101,8 +101,9 @@ const styles: Record<string, React.CSSProperties> = {
         borderRadius: '8px',
         border: 'none',
         backgroundColor: 'transparent',
-        color: '#a0a0b0',
+        color: '#8A7E72',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
     },
 };
+

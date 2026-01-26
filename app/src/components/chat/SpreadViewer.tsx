@@ -123,10 +123,11 @@ export function SpreadViewer() {
     React.useLayoutEffect(() => {
         if (!containerSize.width || !containerSize.height || !dimensions.rows || !dimensions.cols) return;
 
-        const gap = isExpanded ? 10 : 6;
+        const gap = isExpanded ? 8 : 5;
         const cardAspect = 1.5;
-        const verticalBuffer = 85; // Increased safety margin to prevent bottom overflow/cropping
-        const horizontalBuffer = 16;
+        // Reduced buffers to use more available space
+        const verticalBuffer = isExpanded ? 60 : 50;
+        const horizontalBuffer = 12;
 
         const availableWidth = containerSize.width - horizontalBuffer;
         const availableHeight = containerSize.height - verticalBuffer;
@@ -142,8 +143,9 @@ export function SpreadViewer() {
             finalWidth = finalHeight / cardAspect;
         }
 
-        finalWidth = Math.max(40, finalWidth);
-        finalHeight = Math.max(60, finalHeight);
+        // Slightly higher minimums for better visibility
+        finalWidth = Math.max(50, finalWidth);
+        finalHeight = Math.max(75, finalHeight);
 
         setCardSize({ width: Math.floor(finalWidth), height: Math.floor(finalHeight) });
     }, [containerSize, dimensions, isExpanded]);
@@ -206,7 +208,7 @@ export function SpreadViewer() {
                     </span>
                     {/* Subtle expand indicator when collapsed */}
                     {isCollapsed && (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: 'rgba(212, 183, 250, 0.6)' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ color: '#B9A27A' }}>
                             <polyline points="6 9 12 15 18 9" />
                         </svg>
                     )}
@@ -322,8 +324,8 @@ export function SpreadViewer() {
                                             style={{
                                                 ...styles.dot,
                                                 backgroundColor: index === currentSpreadIndex
-                                                    ? '#d4b7fa'
-                                                    : 'rgba(255,255,255,0.3)',
+                                                    ? '#B9A27A'
+                                                    : 'rgba(216, 207, 193, 0.6)',
                                             }}
                                         />
                                     ))}
@@ -370,28 +372,26 @@ export function SpreadViewer() {
                                 </svg>
                             </button>
 
-                            {/* Collapse to FAB button */}
-                            {!isMockMode && (
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setSpreadViewMode('collapsed'); }}
-                                    style={styles.controlBtn}
-                                    title="Minimize spread"
+                            {/* Collapse to FAB button - always visible */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setSpreadViewMode('collapsed'); }}
+                                style={styles.controlBtn}
+                                title="Minimize spread"
+                            >
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 >
-                                    <svg
-                                        width="18"
-                                        height="18"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <line x1="18" y1="6" x2="6" y2="18" />
-                                        <line x1="6" y1="6" x2="18" y2="18" />
-                                    </svg>
-                                </button>
-                            )}
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
 
@@ -442,16 +442,22 @@ function CardBack() {
             height: '100%',
             borderRadius: '8px',
             overflow: 'hidden',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.6), 0 0 16px rgba(139, 92, 246, 0.3)',
-            border: '1px solid rgba(139, 92, 246, 0.4)',
+            boxShadow: '0 10px 24px rgba(47, 42, 36, 0.12), 0 2px 6px rgba(47, 42, 36, 0.08)',
+            border: '1px solid #D8CFC1',
             position: 'relative',
+            background: '#F8F4EC', // Fallback color matching card
         }}>
             <Image
                 src="/card-back.png"
                 alt="Card back"
                 fill
-                sizes="200px"
-                style={{ objectFit: 'cover' }}
+                sizes="(max-width: 768px) 120px, 200px"
+                style={{
+                    objectFit: 'fill',  // Fill entire container, stretching if needed
+                    width: '100%',
+                    height: '100%',
+                }}
+                priority
             />
         </div>
     );
@@ -474,10 +480,10 @@ const styles: Record<string, React.CSSProperties> = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#161626',
+        backgroundColor: '#F6F1E8',
     },
     emptyText: {
-        color: '#666',
+        color: '#8A7E72',
         fontSize: '14px',
     },
     header: {
@@ -488,19 +494,19 @@ const styles: Record<string, React.CSSProperties> = {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        borderBottom: '1px solid #D8CFC1',
         flexShrink: 0,
     },
     spreadName: {
         fontWeight: 600,
-        color: '#d4b7fa',
+        color: '#B9A27A',
         textTransform: 'uppercase',
         letterSpacing: '1px',
         fontSize: '12px',
     },
     spreadTopic: {
         fontSize: '13px',
-        color: '#888',
+        color: '#8A7E72',
         fontStyle: 'italic',
         marginTop: '4px',
         maxWidth: '300px',
@@ -524,9 +530,9 @@ const styles: Record<string, React.CSSProperties> = {
         flexShrink: 0,
     },
     navArrow: {
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        color: 'white',
+        background: '#EFE7DA',
+        border: '1px solid #D8CFC1',
+        color: '#6B6157',
         fontSize: '32px',
         fontWeight: 300,
         width: '44px',
@@ -562,7 +568,7 @@ const styles: Record<string, React.CSSProperties> = {
     },
     pageIndicator: {
         fontSize: '11px',
-        color: '#888',
+        color: '#8A7E72',
     },
     dots: {
         display: 'flex',
@@ -576,7 +582,7 @@ const styles: Record<string, React.CSSProperties> = {
     },
     mockHint: {
         fontSize: '13px',
-        color: '#9b59b6',
+        color: '#B9A27A',
         fontStyle: 'italic',
     },
     controlButtons: {
@@ -586,9 +592,9 @@ const styles: Record<string, React.CSSProperties> = {
         justifyContent: 'center',
     },
     controlBtn: {
-        background: 'rgba(255,255,255,0.08)',
-        border: '1px solid rgba(255,255,255,0.15)',
-        color: 'rgba(255,255,255,0.7)',
+        background: '#EFE7DA',
+        border: '1px solid #D8CFC1',
+        color: '#6B6157',
         width: '40px',
         height: '40px',
         borderRadius: '50%',
@@ -597,7 +603,6 @@ const styles: Record<string, React.CSSProperties> = {
         alignItems: 'center',
         justifyContent: 'center',
         transition: 'all 0.2s ease',
-        backdropFilter: 'blur(8px)',
     },
     modalOverlay: {
         position: 'fixed',
@@ -605,7 +610,7 @@ const styles: Record<string, React.CSSProperties> = {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(47, 42, 36, 0.4)',
         backdropFilter: 'blur(4px)',
         zIndex: 1000,
         display: 'flex',
@@ -614,7 +619,7 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '20px',
     },
     modalContent: {
-        backgroundColor: '#1f1f2e',
+        backgroundColor: '#F6F1E8',
         borderRadius: '16px',
         padding: '20px',
         maxWidth: '340px',
@@ -623,17 +628,18 @@ const styles: Record<string, React.CSSProperties> = {
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 10px 25px rgba(47, 42, 36, 0.2)',
+        border: '1px solid #D8CFC1',
         overflowY: 'auto',
+        color: '#2F2A24',
     },
     modalClose: {
         position: 'absolute',
         top: '10px',
         right: '10px',
-        background: 'rgba(255,255,255,0.1)',
+        background: 'rgba(47, 42, 36, 0.08)',
         border: 'none',
-        color: 'white',
+        color: '#6B6157',
         width: '30px',
         height: '30px',
         borderRadius: '50%',

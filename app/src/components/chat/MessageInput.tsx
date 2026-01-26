@@ -36,8 +36,8 @@ export function MessageInput({ onSend, isLoading = false }: MessageInputProps) {
             style={{
                 width: '100%',
                 padding: '16px',
-                background: '#1a1a2e',
-                borderTop: '1px solid #2a2a3a',
+                background: '#E9E1D4',
+                borderTop: '1px solid #D8CFC1',
                 display: 'flex',
                 gap: '12px',
                 alignItems: 'flex-end',
@@ -65,10 +65,10 @@ export function MessageInput({ onSend, isLoading = false }: MessageInputProps) {
                         width: '100%',
                         padding: '12px 16px',
                         paddingRight: '40px',
-                        background: '#0f0f1a',
-                        border: '1px solid #333',
+                        background: '#F6F1E8',
+                        border: '1px solid #D8CFC1',
                         borderRadius: '24px',
-                        color: 'white',
+                        color: '#2F2A24',
                         fontSize: '16px',
                         resize: 'none',
                         outline: 'none',
@@ -86,8 +86,8 @@ export function MessageInput({ onSend, isLoading = false }: MessageInputProps) {
                     width: '44px',
                     height: '44px',
                     borderRadius: '50%',
-                    background: !message.trim() || isLoading ? '#333' : '#6d28d9',
-                    color: 'white',
+                    background: !message.trim() || isLoading ? '#D8CFC1' : '#B9A27A',
+                    color: !message.trim() || isLoading ? '#8A7E72' : '#2F2A24',
                     border: 'none',
                     display: 'flex',
                     alignItems: 'center',
@@ -106,3 +106,4 @@ export function MessageInput({ onSend, isLoading = false }: MessageInputProps) {
         </form>
     );
 }
+
